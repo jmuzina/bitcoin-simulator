@@ -13,8 +13,8 @@
 #include <string>
 #include <deque>
 
-#include "./../MarkPBFT_peer.hpp"
-#include "./../SmartShard.hpp"
+#include "SmartShardPBFT_peer.hpp"
+#include "SmartShards/SmartShard.hpp"
 #include "./../params_SmartShards.h"
 #include "./../params_Blockguard.hpp"
 

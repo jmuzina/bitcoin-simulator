@@ -36,8 +36,8 @@
 // UTIL
 #include "./Common/Logger.hpp"
 #include "./Common/Blockchain.hpp"
-#include "MarkPBFT_peer.hpp"
-#include "SmartShard.hpp"
+#include "SmartShardPBFT_peer.hpp"
+#include "SmartShards/SmartShard.hpp"
 
 const int peerCount = 10;
 const int blockChainLength = 100;

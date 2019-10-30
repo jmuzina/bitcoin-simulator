@@ -4,7 +4,7 @@
 //	
 
 
-#include "MarkPBFT_peer.hpp"
+#include "SmartShardPBFT_peer.hpp"
 #include <string>
 #include "Common/Peer.hpp"
 #include <map>

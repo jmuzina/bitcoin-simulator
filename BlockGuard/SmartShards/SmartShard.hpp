@@ -8,7 +8,7 @@
 
 #include <vector>
 #include <set>
-#include "MarkPBFT_peer.hpp"
+#include "SmartShardPBFT_peer.hpp"
 #include "Common/ByzantineNetwork.hpp"
 
 class SmartShard {
