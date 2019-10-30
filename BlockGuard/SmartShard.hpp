@@ -29,37 +29,37 @@ protected:
     std::ostream*                               _out;
 
 public:
-	~SmartShard() {for (auto e : _system) delete e;}
+	~SmartShard                                         () { for (auto e : _system) delete e; }
 	//const int& shards, std::ostream& out, int delay, int peerspershard = -1, int reserveSize = 0, int quorumIntersection = 1)
-	SmartShard(const int&, std::ostream&, int, int, int, int);
+	SmartShard                                          (const int&, std::ostream&, int, int, int, int);
 
 	// setters
-	void setFaultTolerance(double);
-    void setRequestsPerRound(int requestPerRound);
-    void setRoundsToRequest(int roundstoRequest);
-    void setMaxWait();
+	void                        setFaultTolerance       (double);
+    void                        setRequestsPerRound     (int requestPerRound);
+    void                        setRoundsToRequest      (int roundstoRequest);
+    void                        setMaxWait              ();
 
     // getters
-    int size();
-    int getConfirmationCount();
-    bool isByzantine(int peer);
-    int getByzantine();
-    int shardCount() {return _system.size();}
-    int peerCount() { return _peers.size(); }
-    std::vector<shard> getQuorums(){ return _system; }
-    int getShardSize(){ return _peersPerShard; }
+    int                         size();
+    int                         getConfirmationCount    ();
+    bool                        isByzantine             (int peer);
+    int                         getByzantine            ();
+    int                         shardCount              () { return _system.size(); }
+    int                         peerCount               () { return _peers.size(); }
+    std::vector<shard>          getQuorums              () { return _system; }
+    int                         getShardSize            () { return _peersPerShard; }
 
     // mutators
-    void setupShardNeighborhood();
-    void makeByzantine(int peer);
-    void makeCorrect(int peer);
-    void makeRequest(int forQuorum = -1, int toQuorum = -1, int toPeer = -1);
-    void revivePeer();
-    void dropPeer();
+    void                        setupShardNeighborhood  ();
+    void                        makeByzantine           (int peer);
+    void                        makeCorrect             (int peer);
+    void                        makeRequest             (int forQuorum = -1, int toQuorum = -1, int toPeer = -1);
+    void                        revivePeer              ();
+    void                        dropPeer                ();
 
     // logging and operators
     void printPeers();
-    std::set<markPBFT_peer*>& operator[] (int i);
+    std::set<markPBFT_peer*>&   operator[]              (int i);
 
 };
 
