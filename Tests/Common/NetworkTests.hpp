@@ -12,8 +12,8 @@
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
-#include "./../BlockGuard/Common/Network.hpp"
-#include "./../BlockGuard/ExamplePeer.hpp"
+#include "./../src/Common/Network.hpp"
+#include "./../src/ExamplePeer.hpp"
 
 void runNetworkTests    (std::string filepath);
 

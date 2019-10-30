@@ -8,11 +8,11 @@
 
 // run tests over classes
 
-#include "PBFTPeerTest.hpp"
-#include "PBFTPeer_Sharded_Test.hpp"
-#include "PBFTReferenceCommittee_Test.hpp"
-#include "ByzantineNetwork_Test.hpp"
-#include "NetworkTests.hpp"
+#include "PBFT/PBFTPeerTest.hpp"
+#include "PBFT/PBFTPeer_Sharded_Test.hpp"
+#include "PBFT/PBFTReferenceCommittee_Test.hpp"
+#include "Common/ByzantineNetwork_Test.hpp"
+#include "Common/NetworkTests.hpp"
 
 #include <string>
 

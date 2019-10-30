@@ -13,7 +13,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
-#include "../BlockGuard/PBFT/PBFTPeer_Sharded.hpp"
+#include "../src/PBFT/PBFTPeer_Sharded.hpp"
 
 void RunPBFTPeerShardedTest      (std::string filepath); // run all PBFT tests
 

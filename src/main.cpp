@@ -33,11 +33,12 @@
 #include "./bCoin/DS_bCoin_Peer.hpp"
 // Smart Shards
 #include "Experiments/SmartShards_Experiments.h"
+#include "SmartShardPBFT_peer.hpp"
+#include "SmartShards/SmartShard.hpp"
 // UTIL
 #include "./Common/Logger.hpp"
 #include "./Common/Blockchain.hpp"
-#include "SmartShardPBFT_peer.hpp"
-#include "SmartShards/SmartShard.hpp"
+
 
 const int peerCount = 10;
 const int blockChainLength = 100;

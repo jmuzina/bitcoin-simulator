@@ -13,8 +13,8 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
-#include "../BlockGuard/PBFT/PBFTPeer_Sharded.hpp"
-#include "../BlockGuard/PBFT/PBFTReferenceCommittee.hpp"
+#include "../src/PBFT/PBFTPeer_Sharded.hpp"
+#include "../src/PBFT/PBFTReferenceCommittee.hpp"
 
 void RunPBFTRefComTest              (std::string filepath); // run all PBFT tests
 

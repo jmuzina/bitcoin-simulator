@@ -1140,7 +1140,7 @@ void multiRequest(std::ostream &log){
     assert(b.getPhase()                             == IDEAL);
     assert(c.getPhase()                             == IDEAL);
 
-    assert(a.getPrePrepareLog().size()                 == 0);
+    assert(a.getPrePrepareLog().size()              == 0);
     
     a.transmit();
     b.transmit();
@@ -1225,7 +1225,7 @@ void multiRequest(std::ostream &log){
     assert(a.getRequestLog()[0].client_id           == "B");
     assert(a.getRequestLog()[0].view                == 0);
     assert(a.getRequestLog()[0].type                == REQUEST);
-    assert(a.getRequestLog()[0].commit_round               == 0);
+    assert(a.getRequestLog()[0].commit_round        == 1);
     assert(a.getRequestLog()[0].phase               == IDEAL);
     assert(a.getRequestLog()[0].result              == 0);
     
@@ -1314,21 +1314,21 @@ void multiRequest(std::ostream &log){
     assert(a.getRequestLog()[0].client_id           == "B");
     assert(a.getRequestLog()[0].view                == 0);
     assert(a.getRequestLog()[0].type                == REQUEST);
-    assert(a.getRequestLog()[0].commit_round               == 0);
+    assert(a.getRequestLog()[0].commit_round        == 1);
     assert(a.getRequestLog()[0].phase               == IDEAL);
     assert(a.getRequestLog()[0].result              == 0);
     assert(a.getRequestLog()[1].sequenceNumber      == -1);
     assert(a.getRequestLog()[1].client_id           == "A");
     assert(a.getRequestLog()[1].view                == 0);
     assert(a.getRequestLog()[1].type                == REQUEST);
-    assert(a.getRequestLog()[1].commit_round               == 2);
+    assert(a.getRequestLog()[1].commit_round        == 3);
     assert(a.getRequestLog()[1].phase               == IDEAL);
     assert(a.getRequestLog()[1].result              == 0);
     assert(a.getRequestLog()[2].sequenceNumber      == -1);
     assert(a.getRequestLog()[2].client_id           == "C");
     assert(a.getRequestLog()[2].view                == 0);
     assert(a.getRequestLog()[2].type                == REQUEST);
-    assert(a.getRequestLog()[2].commit_round               == 1);
+    assert(a.getRequestLog()[2].commit_round        == 2); // out of submit order because leader has no delay in transactions submitted to its self
     assert(a.getRequestLog()[2].phase               == IDEAL);
     assert(a.getRequestLog()[2].result              == 0);
 
@@ -1420,21 +1420,21 @@ void multiRequest(std::ostream &log){
     assert(a.getRequestLog()[0].client_id           == "B");
     assert(a.getRequestLog()[0].view                == 0);
     assert(a.getRequestLog()[0].type                == REQUEST);
-    assert(a.getRequestLog()[0].commit_round               == 0);
+    assert(a.getRequestLog()[0].commit_round        == 1);
     assert(a.getRequestLog()[0].phase               == IDEAL);
     assert(a.getRequestLog()[0].result              == 0);
     assert(a.getRequestLog()[1].sequenceNumber      == -1);
     assert(a.getRequestLog()[1].client_id           == "A");
     assert(a.getRequestLog()[1].view                == 0);
     assert(a.getRequestLog()[1].type                == REQUEST);
-    assert(a.getRequestLog()[1].commit_round               == 2);
+    assert(a.getRequestLog()[1].commit_round        == 3);
     assert(a.getRequestLog()[1].phase               == IDEAL);
     assert(a.getRequestLog()[1].result              == 0);
     assert(a.getRequestLog()[2].sequenceNumber      == -1);
     assert(a.getRequestLog()[2].client_id           == "C");
     assert(a.getRequestLog()[2].view                == 0);
     assert(a.getRequestLog()[2].type                == REQUEST);
-    assert(a.getRequestLog()[2].commit_round               == 1);
+    assert(a.getRequestLog()[2].commit_round        == 2);
     assert(a.getRequestLog()[2].phase               == IDEAL);
     assert(a.getRequestLog()[2].result              == 0);
 
@@ -1504,28 +1504,28 @@ void multiRequest(std::ostream &log){
     assert(a.getRequestLog()[0].client_id           == "B");
     assert(a.getRequestLog()[0].view                == 0);
     assert(a.getRequestLog()[0].type                == REQUEST);
-    assert(a.getRequestLog()[0].commit_round        == 0);
+    assert(a.getRequestLog()[0].commit_round        == 1);
     assert(a.getRequestLog()[0].phase               == IDEAL);
     assert(a.getRequestLog()[0].result              == 0);
     assert(a.getRequestLog()[1].sequenceNumber      == -1);
     assert(a.getRequestLog()[1].client_id           == "A");
     assert(a.getRequestLog()[1].view                == 0);
     assert(a.getRequestLog()[1].type                == REQUEST);
-    assert(a.getRequestLog()[1].commit_round        == 2);
+    assert(a.getRequestLog()[1].commit_round        == 3);
     assert(a.getRequestLog()[1].phase               == IDEAL);
     assert(a.getRequestLog()[1].result              == 0);
     assert(a.getRequestLog()[2].sequenceNumber      == -1);
     assert(a.getRequestLog()[2].client_id           == "C");
     assert(a.getRequestLog()[2].view                == 0);
     assert(a.getRequestLog()[2].type                == REQUEST);
-    assert(a.getRequestLog()[2].commit_round               == 1);
+    assert(a.getRequestLog()[2].commit_round        == 2);
     assert(a.getRequestLog()[2].phase               == IDEAL);
     assert(a.getRequestLog()[2].result              == 0);
     assert(a.getRequestLog()[3].sequenceNumber      == -1);
     assert(a.getRequestLog()[3].client_id           == "B");
     assert(a.getRequestLog()[3].view                == 0);
     assert(a.getRequestLog()[3].type                == REQUEST);
-    assert(a.getRequestLog()[3].commit_round               == 3);
+    assert(a.getRequestLog()[3].commit_round        == 4);
     assert(a.getRequestLog()[3].phase               == IDEAL);
     assert(a.getRequestLog()[3].result              == 0);
 
@@ -1557,28 +1557,28 @@ void multiRequest(std::ostream &log){
     assert(a.getRequestLog()[0].client_id           == "A");
     assert(a.getRequestLog()[0].view                == 0);
     assert(a.getRequestLog()[0].type                == REQUEST);
-    assert(a.getRequestLog()[0].commit_round               == 2);
+    assert(a.getRequestLog()[0].commit_round        == 3);
     assert(a.getRequestLog()[0].phase               == IDEAL);
     assert(a.getRequestLog()[0].result              == 0);
     assert(a.getRequestLog()[1].sequenceNumber      == -1);
     assert(a.getRequestLog()[1].client_id           == "C");
     assert(a.getRequestLog()[1].view                == 0);
     assert(a.getRequestLog()[1].type                == REQUEST);
-    assert(a.getRequestLog()[1].commit_round               == 1);
+    assert(a.getRequestLog()[1].commit_round        == 2);
     assert(a.getRequestLog()[1].phase               == IDEAL);
     assert(a.getRequestLog()[1].result              == 0);
     assert(a.getRequestLog()[2].sequenceNumber      == -1);
     assert(a.getRequestLog()[2].client_id           == "B");
     assert(a.getRequestLog()[2].view                == 0);
     assert(a.getRequestLog()[2].type                == REQUEST);
-    assert(a.getRequestLog()[2].commit_round               == 3);
+    assert(a.getRequestLog()[2].commit_round        == 4);
     assert(a.getRequestLog()[2].phase               == IDEAL);
     assert(a.getRequestLog()[2].result              == 0);
     assert(a.getRequestLog()[3].sequenceNumber      == -1);
     assert(a.getRequestLog()[3].client_id           == "A");
     assert(a.getRequestLog()[3].view                == 0);
     assert(a.getRequestLog()[3].type                == REQUEST);
-    assert(a.getRequestLog()[3].commit_round               == 5);
+    assert(a.getRequestLog()[3].commit_round        == 6);
     assert(a.getRequestLog()[3].phase               == IDEAL);
     assert(a.getRequestLog()[3].result              == 0);
     
