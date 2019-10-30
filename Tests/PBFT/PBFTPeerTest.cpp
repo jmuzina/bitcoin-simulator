@@ -1908,10 +1908,10 @@ void viewChange(std::ostream &log){
         c.transmit();
     }
 
-    // view change should have happend here so we check
-    assert(a.isPrimary()                == false);
-    assert(b.isPrimary()                == true);
-    assert(c.isPrimary()                == false);
+    // view change should have happened here so we check
+    assert(!a.isPrimary());
+    assert(b.isPrimary());
+    assert(!c.isPrimary());
 
     assert(a.getLedger().size()         == 0);
     assert(b.getLedger().size()         == 0);
