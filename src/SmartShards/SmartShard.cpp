@@ -11,7 +11,7 @@ SmartShard::SmartShard(const int& shards, std::ostream& out, int delay, int peer
 
 	// Initialize Quorums
 	for (int i = 0; i < _shards; ++i) {
-		_system.push_back(new ByzantineNetwork<markPBFT_message, markPBFT_peer>());
+		_system.push_back(new ByzantineNetwork<SmartShardPBFT_Message, SmartShardPBFT_peer>());
 		_system[i]->setLog(*_out);
 		_system[i]->setToRandom();
 		_system[i]->setMaxDelay(delay);
@@ -30,8 +30,8 @@ SmartShard::SmartShard(const int& shards, std::ostream& out, int delay, int peer
         int offset = quorum*quorumIntersection;
         for(int thisPBFTInstances = offset; thisPBFTInstances < _system[quorum]->size(); ) {
             for (int otherPBFTInstances = 0; otherPBFTInstances < quorumIntersection; otherPBFTInstances++) {
-                markPBFT_peer* peerFromThisQuorum = (*_system[quorum])[thisPBFTInstances];
-                markPBFT_peer* peerFromOtherQuorum = (*_system[nextQuorum])[quorum + otherPBFTInstances];
+                SmartShardPBFT_peer* peerFromThisQuorum = (*_system[quorum])[thisPBFTInstances];
+                SmartShardPBFT_peer* peerFromOtherQuorum = (*_system[nextQuorum])[quorum + otherPBFTInstances];
                 assert(peerFromThisQuorum != NULL);
                 assert(peerFromOtherQuorum != NULL);
                 _peers[vPeer].insert(peerFromThisQuorum);
@@ -64,7 +64,7 @@ void SmartShard::makeRequest(int forQuorum, int toQuorum, int toPeer) {
         toPeer = rand() % _peersPerShard;
     }
 
-    markPBFT_message requestMSG;
+    SmartShardPBFT_Message requestMSG;
     requestMSG.creator_id = "MAGIC";
     requestMSG.type = "REQUEST";
     requestMSG.requestGoal = forQuorum;
@@ -188,7 +188,7 @@ void SmartShard::revivePeer(){
     std::cerr << droppedCount << std::endl<<std::endl;
 }
 
-std::set<markPBFT_peer*>& SmartShard::operator[] (int i) {
+std::set<SmartShardPBFT_peer*>& SmartShard::operator[] (int i) {
     if (_peers.find(i) == _peers.end())
         std::cerr << "peer " << i << " does not exist";
     return _peers[i];

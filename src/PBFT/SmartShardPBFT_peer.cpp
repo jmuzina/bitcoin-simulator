@@ -10,7 +10,7 @@
 #include <map>
 #include <set>
 
-bool markPBFT_message::operator==(const markPBFT_message& rhs) {
+bool SmartShardPBFT_Message::operator==(const SmartShardPBFT_Message& rhs) {
 	std::string         client_id;
 	// this is the peer that created the message
 	std::string         creator_id;
@@ -44,7 +44,7 @@ bool markPBFT_message::operator==(const markPBFT_message& rhs) {
 }
 
 // Used to set max wait before deciding peer might be byzantine
-void markPBFT_peer::setMaxWait() {
+void SmartShardPBFT_peer::setMaxWait() {
 	_maxWait = 0;
 	for (auto e : _neighbors)
 		if (e.second->getDelayToNeighbor(_id) > _maxWait) {
@@ -54,28 +54,28 @@ void markPBFT_peer::setMaxWait() {
 	++_maxWait;
 }
 
-void markPBFT_peer::setRoundsToRequest(int a) {
+void SmartShardPBFT_peer::setRoundsToRequest(int a) {
 	if (a > 0) {
 		_roundsToRequest = a;
 		_remainingRoundstoRequest = a;
 	}
 }
 
-std::ostream& markPBFT_peer::printTo(std::ostream& out) const {
+std::ostream& SmartShardPBFT_peer::printTo(std::ostream& out) const {
 
-	Peer<markPBFT_message>::printTo(out); out << "\tPrimary:" << _isPrimary
-		<< "\tState: " << _state << "\tRound: " << _roundCount << std::endl
-		<< "\tCommit Count " << _commitCount << "\tPrepare count " << _prepareCount << "voted" << _voteChange
-		<< std::endl << std::endl << std::flush;  return out;
+	Peer<SmartShardPBFT_Message>::printTo(out); out << "\tPrimary:" << _isPrimary
+                                                    << "\tState: " << _state << "\tRound: " << _roundCount << std::endl
+                                                    << "\tCommit Count " << _commitCount << "\tPrepare count " << _prepareCount << "voted" << _voteChange
+                                                    << std::endl << std::endl << std::flush;  return out;
 
 }
 
-void markPBFT_peer::setPrimary(bool status) {
+void SmartShardPBFT_peer::setPrimary(bool status) {
 
 	// Make sure no other primary
 	if (status) {
 		for (auto e : _neighbors) {
-			static_cast<markPBFT_peer*>(e.second)->setPrimary(false);
+			static_cast<SmartShardPBFT_peer*>(e.second)->setPrimary(false);
 
 		}
 	}
@@ -84,7 +84,7 @@ void markPBFT_peer::setPrimary(bool status) {
 }
 
 
-void markPBFT_peer::makeRequest() {
+void SmartShardPBFT_peer::makeRequest() {
 
 	++_roundCount;
 	receive();
@@ -94,7 +94,7 @@ void markPBFT_peer::makeRequest() {
 		// Since nodes act as client, will still accept replies since they would not normally go to
 		// byzantine node
 		_inStream.erase(std::remove_if(_inStream.begin(), _inStream.end(),
-			[](Packet<markPBFT_message> a) { return a.getMessage().type != reply; }), _inStream.end());
+			[](Packet<SmartShardPBFT_Message> a) { return a.getMessage().type != reply; }), _inStream.end());
 		if (_inStream.empty())
 			return;
 	}
@@ -125,21 +125,21 @@ void markPBFT_peer::makeRequest() {
 				_receivedMsgLog[inmsg.id()][preprepare] = 1;
 			else
 				_state = preprepare;
-			markPBFT_message prepareMSG;
+			SmartShardPBFT_Message prepareMSG;
 			prepareMSG.creator_id = _id;
 			prepareMSG.client_id = _id;
 			prepareMSG.type = prepare;
 			prepareMSG.creator_shard = _neighborShard;
 
 			for (auto e : _neighbors) {
-				Packet<markPBFT_message> outPacket(inmsg.id(), e.second->id(), _id);
+				Packet<SmartShardPBFT_Message> outPacket(inmsg.id(), e.second->id(), _id);
 				outPacket.setBody(prepareMSG);
 
 				outPacket.setDelay(e.second->getDelayToNeighbor(_id), e.second->getDelayToNeighbor(_id) - 1);
 				_outStream.push_back(outPacket);
 			}
 			// send message to self, help solve 2f+1
-			Packet<markPBFT_message> selfPacket(inmsg.id(), _id, _id);
+			Packet<SmartShardPBFT_Message> selfPacket(inmsg.id(), _id, _id);
 			selfPacket.setDelay(1, 0);
 			selfPacket.setBody(prepareMSG);
 			_inStream.push_back(selfPacket);
@@ -162,13 +162,13 @@ void markPBFT_peer::makeRequest() {
 				((int)(_faultTolerance * _neighbors.size()) != 0) &&
 				_msgShardCount[inmsg.id()][prepare].size() >= _shardCount - 1 ) {
 				_state = prepare;
-				markPBFT_message commitMSG;
+				SmartShardPBFT_Message commitMSG;
 				commitMSG.creator_id = _id;
 				commitMSG.client_id = _id;
 				commitMSG.type = commit;
 				commitMSG.creator_shard = _neighborShard;
 				for (auto e : _neighbors) {
-					Packet<markPBFT_message> outPacket(inmsg.id(), e.second->id(), _id);
+					Packet<SmartShardPBFT_Message> outPacket(inmsg.id(), e.second->id(), _id);
 					outPacket.setBody(commitMSG);
 					outPacket.setDelay(e.second->getDelayToNeighbor(_id), e.second->getDelayToNeighbor(_id) - 1);
 					_outStream.push_back(outPacket);
@@ -194,7 +194,7 @@ void markPBFT_peer::makeRequest() {
 				((int)(_faultTolerance * _neighbors.size()) != 0) &&
 				_msgShardCount[inmsg.id()][prepare].size() >= _shardCount - 1) {
 				_state = commit;
-				markPBFT_message replyMSG;
+				SmartShardPBFT_Message replyMSG;
 				replyMSG.creator_id = _id;
 				replyMSG.client_id = _id;
 				replyMSG.type = reply;
@@ -202,7 +202,7 @@ void markPBFT_peer::makeRequest() {
 
 				// Primary is client, send reply to client/self 
 				if (isPrimary()) {
-					Packet<markPBFT_message> outPacket(inmsg.id(), _id, _id);
+					Packet<SmartShardPBFT_Message> outPacket(inmsg.id(), _id, _id);
 					outPacket.setBody(replyMSG);
 					outPacket.setDelay(1, 0);
 					_inStream.push_back(outPacket);
@@ -211,8 +211,8 @@ void markPBFT_peer::makeRequest() {
 				else
 					for (auto e : _neighbors) {
 
-						if (static_cast<markPBFT_peer*>(e.second)->isPrimary()) {
-							Packet<markPBFT_message> outPacket(inmsg.id(), e.second->id(), _id);
+						if (static_cast<SmartShardPBFT_peer*>(e.second)->isPrimary()) {
+							Packet<SmartShardPBFT_Message> outPacket(inmsg.id(), e.second->id(), _id);
 							outPacket.setBody(replyMSG);
 							outPacket.setDelay(e.second->getDelayToNeighbor(_id), e.second->getDelayToNeighbor(_id) - 1);
 							_outStream.push_back(outPacket);
@@ -271,7 +271,7 @@ void markPBFT_peer::makeRequest() {
 			if (_state == idle && _requestQueue > 0) {
 				--_requestQueue;
 
-				markPBFT_message preprepareMSG;
+				SmartShardPBFT_Message preprepareMSG;
 				preprepareMSG.creator_id = _id;
 				preprepareMSG.client_id = _id;
 				preprepareMSG.type = preprepare;
@@ -280,7 +280,7 @@ void markPBFT_peer::makeRequest() {
 				std::string msgID = std::to_string(_roundCount) + _id + std::to_string(++_messageID);
 
 				for (auto e : _neighbors) {
-					Packet<markPBFT_message> outPacket(msgID, e.second->id(), _id);
+					Packet<SmartShardPBFT_Message> outPacket(msgID, e.second->id(), _id);
 					outPacket.setBody(preprepareMSG);
 					outPacket.setDelay(e.second->getDelayToNeighbor(_id));
 					_outStream.push_back(outPacket);
@@ -295,7 +295,7 @@ void markPBFT_peer::makeRequest() {
 	}
 }
 
-void markPBFT_peer::makeRequest(markPBFT_message requestMSG) {
+void SmartShardPBFT_peer::makeRequest(SmartShardPBFT_Message requestMSG) {
 	if (requestMSG.requestGoal == _shard) {}
 	// Create message to primary or self if primary
 	std::string toID;
@@ -303,17 +303,17 @@ void markPBFT_peer::makeRequest(markPBFT_message requestMSG) {
 	if (isPrimary()&&requestMSG.requestGoal == _shard)
 		toID = _id;
 
-	std::map<std::string, Peer<markPBFT_message>*>::iterator targetPeer;
+	std::map<std::string, Peer<SmartShardPBFT_Message>*>::iterator targetPeer;
 	if (requestMSG.requestGoal == _shard && !isPrimary()) {
-		targetPeer = std::find_if(_neighbors.begin(), _neighbors.end(), [&](std::pair< std::string, Peer<markPBFT_message>*> a) {return static_cast<markPBFT_peer*>(a.second)->isPrimary(); });
+		targetPeer = std::find_if(_neighbors.begin(), _neighbors.end(), [&](std::pair< std::string, Peer<SmartShardPBFT_Message>*> a) {return static_cast<SmartShardPBFT_peer*>(a.second)->isPrimary(); });
 		toID = (targetPeer->second)->id();
 	}
 	else {
-		targetPeer = std::find_if(_neighbors.begin(), _neighbors.end(), [&](std::pair< std::string, Peer<markPBFT_message>*> a) {
-			return static_cast<markPBFT_peer*>(a.second)->getShard() == requestMSG.requestGoal; });
+		targetPeer = std::find_if(_neighbors.begin(), _neighbors.end(), [&](std::pair< std::string, Peer<SmartShardPBFT_Message>*> a) {
+			return static_cast<SmartShardPBFT_peer*>(a.second)->getShard() == requestMSG.requestGoal; });
 		toID = (targetPeer->second)->id();
 	}
-	Packet<markPBFT_message> outPacket(requestMSG.client_id, toID, _id);
+	Packet<SmartShardPBFT_Message> outPacket(requestMSG.client_id, toID, _id);
 	outPacket.setBody(requestMSG);
 	if (isPrimary() && requestMSG.requestGoal == _shard)
 		outPacket.setDelay(1, 0);

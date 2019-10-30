@@ -15,7 +15,7 @@ static const std::string reply          = "REPLY";
 static const std::string view_change    = "VIEW_CHANGE";
 static const std::string request        = "REQUEST";
 
-struct markPBFT_message {
+struct SmartShardPBFT_Message {
 	std::string         client_id;
 	// this is the peer that created the message
 	std::string         creator_id;
@@ -33,12 +33,12 @@ struct markPBFT_message {
 	std::string         phase;
 	int                 sequenceNumber;
 
-	bool operator==(const markPBFT_message& rhs);
+	bool operator==(const SmartShardPBFT_Message& rhs);
 };
 
-class markPBFT_peer : public Peer<markPBFT_message> {
+class SmartShardPBFT_peer : public Peer<SmartShardPBFT_Message> {
 private:
-	markPBFT_peer() {}
+	SmartShardPBFT_peer() {}
 
 	bool                                                            _isPrimary;
 	std::string                                                     _state; // planned delete
@@ -73,13 +73,13 @@ private:
 	std::map < std::string, std::map<std::string, std::set<int>>>   _msgShardCount; // map<msgID,map<messageType,list<shards>>>
 
 public:
-    markPBFT_peer(std::string id) : Peer<markPBFT_message>(id), _isPrimary(false), _faultTolerance(0.3), _messageID(0), _viewCounter(0),
-                                    _voteChange(false), _state(idle), _roundCount(0), _prepareCount(0), _commitCount(0), _requestPerRound(1), _maxWait(0), _waitcommit(0),
-                                    _roundsToRequest(1), _remainingRoundstoRequest(1), _requestQueue(0), _neighborShard(0)
+    SmartShardPBFT_peer(std::string id) : Peer<SmartShardPBFT_Message>(id), _isPrimary(false), _faultTolerance(0.3), _messageID(0), _viewCounter(0),
+                                          _voteChange(false), _state(idle), _roundCount(0), _prepareCount(0), _commitCount(0), _requestPerRound(1), _maxWait(0), _waitcommit(0),
+                                          _roundsToRequest(1), _remainingRoundstoRequest(1), _requestQueue(0), _neighborShard(0)
     {
         //_printNeighborhood = true;
     }
-                                    ~markPBFT_peer      ()                          {}
+                                    ~SmartShardPBFT_peer      ()                          {}
 
     // getters
     int                             getShardCount       () const                    { return _shardCount; }
@@ -108,7 +108,7 @@ public:
     // base class functions
     void                            makeRequest         ();
     void                            preformComputation  ()                          {}
-    void                            makeRequest         (markPBFT_message);
+    void                            makeRequest         (SmartShardPBFT_Message);
 
     // loging
     std::ostream&                   printTo             (std::ostream& out) const;

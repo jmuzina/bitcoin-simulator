@@ -14,11 +14,11 @@
 class SmartShard {
 protected:
     // type abbreviations
-    typedef ByzantineNetwork<markPBFT_message, markPBFT_peer>* shard;
+    typedef ByzantineNetwork<SmartShardPBFT_Message, SmartShardPBFT_peer>* shard;
 
     // system state
     std::vector<shard>                          _system; // list of shards in the system
-    std::map<int, std::set<markPBFT_peer*> >    _peers; // peer id, to list of real peers that it is in the quorums (vir peers)
+    std::map<int, std::set<SmartShardPBFT_peer*> >    _peers; // peer id, to list of real peers that it is in the quorums (vir peers)
 
     // system params
     int                                         _peersPerShard;
@@ -59,7 +59,7 @@ public:
 
     // logging and operators
     void printPeers();
-    std::set<markPBFT_peer*>&   operator[]              (int i);
+    std::set<SmartShardPBFT_peer*>&   operator[]              (int i);
 
 };
 

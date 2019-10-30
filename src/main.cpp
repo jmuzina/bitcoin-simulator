@@ -1041,7 +1041,7 @@ void markPBFT(const std::string& filePath) {
 								std::cerr << "failed to open log file";
 
 
-							ByzantineNetwork<markPBFT_message, markPBFT_peer> system;
+							ByzantineNetwork<SmartShardPBFT_Message, SmartShardPBFT_peer> system;
 							system.setLog(out);
 							system.setToRandom();
 							system.setMaxDelay(delay);
