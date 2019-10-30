@@ -18,13 +18,16 @@
 #include "./../params_SmartShards.h"
 #include "./../params_Blockguard.hpp"
 
-void ChurnRateVsQuorumIntersection(std::ofstream &csv, std::ofstream &log);
+void                churnRateVsQuorumIntersection       (std::ofstream &csv, std::ofstream &log);
+void                churnRateVsQuorumIntersectionQuick  (std::ofstream &csv, std::ofstream &log);
 
 // intersection runs
-std::string intersectionWithHaltsAndJoins(int numberOfShards, int numberOfJoins, int numberOfHalts, std::ofstream &log);
+std::string         intersectionWithHaltsAndJoins       (int numberOfShards, int numberOfJoins, int numberOfHalts, std::ofstream &log);
+std::string         quickPBFT                           (int numberOfShards, int numberOfJoins, int numberOfHalts, std::ofstream &log);
+
 
 // util
 // returns a list of rounds for for some event to happen, each event gets it's own round
-std::deque<int> scheduleEvents(int numberOfEvents);
+std::deque<int>     scheduleEvents                      (int numberOfEvents);
 
 #endif //DISTRIBUTED_CONSENSUS_ABSTRACT_SIMULATOR_SMARTSHARDS_EXPERIMENTS_H

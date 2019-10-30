@@ -4,7 +4,7 @@
 
 #include "SmartShards_Experiments.h"
 
-void ChurnRateVsQuorumIntersection(std::ofstream &summary, std::ofstream &log){
+void churnRateVsQuorumIntersection(std::ofstream &csv, std::ofstream &log){
 
     /* P = Number of Peers
      * S = Number of Shards
@@ -14,82 +14,170 @@ void ChurnRateVsQuorumIntersection(std::ofstream &summary, std::ofstream &log){
      */
 
     int numberOfShards = MAX_NUMBER_OF_SHARDS;
-    summary << "5 Quorum, quorum Intersection " << std::endl;
-    summary << "confirmations, total dead peers, churnRate, Intersection" << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (0.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (1.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (2.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (3.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (4.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (5.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << "5 Quorum, quorum Intersection " << std::endl;
+    csv << "confirmations, total dead peers, churnRate, Intersection" << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (0.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (1.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (2.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (3.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (4.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (5.0 / 5), PEER_COUNT, log) << std::endl;
     
 
 
     numberOfShards++;
-    summary << "6 Quorum, quorum Intersection " << std::endl;
-    summary << "confirmations, total dead peers, churnRate, Intersection" << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (0.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (1.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (2.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (3.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (4.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (5.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << "6 Quorum, quorum Intersection " << std::endl;
+    csv << "confirmations, total dead peers, churnRate, Intersection" << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (0.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (1.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (2.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (3.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (4.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (5.0 / 5), PEER_COUNT, log) << std::endl;
     
 
     numberOfShards++;
-    summary << "7 Quorum, quorum Intersection " << std::endl;
-    summary << "confirmations, total dead peers, churnRate, Intersection" << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (0.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (1.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (2.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (3.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (4.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (5.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << "7 Quorum, quorum Intersection " << std::endl;
+    csv << "confirmations, total dead peers, churnRate, Intersection" << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (0.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (1.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (2.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (3.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (4.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (5.0 / 5), PEER_COUNT, log) << std::endl;
     
 
     numberOfShards++;
-    summary << "8 Quorum, quorum Intersection " << std::endl;
-    summary << "confirmations, total dead peers, churnRate, Intersection" << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (0.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (1.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (2.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (3.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (4.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (5.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << "8 Quorum, quorum Intersection " << std::endl;
+    csv << "confirmations, total dead peers, churnRate, Intersection" << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (0.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (1.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (2.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (3.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (4.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (5.0 / 5), PEER_COUNT, log) << std::endl;
     
 
     numberOfShards++;
-    summary << "9 Quorum, quorum Intersection " << std::endl;
-    summary << "confirmations, total dead peers, churnRate, Intersection" << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (0.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (1.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (2.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (3.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (4.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (5.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << "9 Quorum, quorum Intersection " << std::endl;
+    csv << "confirmations, total dead peers, churnRate, Intersection" << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (0.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (1.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (2.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (3.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (4.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (5.0 / 5), PEER_COUNT, log) << std::endl;
     
 
     numberOfShards++;
-    summary << "10 Quorum, quorum Intersection " << std::endl;
-    summary << "confirmations, total dead peers, churnRate, Intersection" << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (0.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (1.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (2.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (3.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (4.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (5.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << "10 Quorum, quorum Intersection " << std::endl;
+    csv << "confirmations, total dead peers, churnRate, Intersection" << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (0.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (1.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (2.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (3.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (4.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (5.0 / 5), PEER_COUNT, log) << std::endl;
     
 
     numberOfShards++;
-    summary << "11 Quorum, quorum Intersection " << std::endl;
-    summary << "confirmations, total dead peers, churnRate, Intersection" << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (0.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (1.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (2.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (3.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (4.0 / 5), PEER_COUNT, log) << std::endl;
-    summary << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (5.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << "11 Quorum, quorum Intersection " << std::endl;
+    csv << "confirmations, total dead peers, churnRate, Intersection" << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (0.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (1.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (2.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (3.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (4.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (5.0 / 5), PEER_COUNT, log) << std::endl;
     
+}
+
+void churnRateVsQuorumIntersectionQuick(std::ofstream &csv, std::ofstream &log){
+
+    /* P = Number of Peers
+     * S = Number of Shards
+     * I = Number of Intersections
+     * P = I*(S(S-1))/2
+     * I = 2P/S(S-1)
+     */
+
+    int numberOfShards = MAX_NUMBER_OF_SHARDS;
+    csv << "5 Quorum, quorum Intersection " << std::endl;
+    csv << "confirmations, total dead peers, churnRate, Intersection" << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (0.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (1.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (2.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (3.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (4.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (5.0 / 5), PEER_COUNT, log) << std::endl;
+
+
+
+    numberOfShards++;
+    csv << "6 Quorum, quorum Intersection " << std::endl;
+    csv << "confirmations, total dead peers, churnRate, Intersection" << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (0.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (1.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (2.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (3.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (4.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (5.0 / 5), PEER_COUNT, log) << std::endl;
+
+
+    numberOfShards++;
+    csv << "7 Quorum, quorum Intersection " << std::endl;
+    csv << "confirmations, total dead peers, churnRate, Intersection" << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (0.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (1.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (2.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (3.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (4.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (5.0 / 5), PEER_COUNT, log) << std::endl;
+
+
+    numberOfShards++;
+    csv << "8 Quorum, quorum Intersection " << std::endl;
+    csv << "confirmations, total dead peers, churnRate, Intersection" << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (0.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (1.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (2.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (3.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (4.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (5.0 / 5), PEER_COUNT, log) << std::endl;
+
+
+    numberOfShards++;
+    csv << "9 Quorum, quorum Intersection " << std::endl;
+    csv << "confirmations, total dead peers, churnRate, Intersection" << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (0.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (1.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (2.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (3.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (4.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (5.0 / 5), PEER_COUNT, log) << std::endl;
+
+
+    numberOfShards++;
+    csv << "10 Quorum, quorum Intersection " << std::endl;
+    csv << "confirmations, total dead peers, churnRate, Intersection" << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (0.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (1.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (2.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (3.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (4.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (5.0 / 5), PEER_COUNT, log) << std::endl;
+
+
+    numberOfShards++;
+    csv << "11 Quorum, quorum Intersection " << std::endl;
+    csv << "confirmations, total dead peers, churnRate, Intersection" << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (0.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (1.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (2.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (3.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (4.0 / 5), PEER_COUNT, log) << std::endl;
+    csv << quickPBFT(numberOfShards, PEER_COUNT * (5.0 / 5), PEER_COUNT, log) << std::endl;
+
 }
 
 std::string intersectionWithHaltsAndJoins(int numberOfShards, int numberOfJoins, int numberOfHalts, std::ofstream &log){
@@ -144,10 +232,14 @@ std::string intersectionWithHaltsAndJoins(int numberOfShards, int numberOfJoins,
 
         totalConfirmations += system.getConfirmationCount();
     }
-    return std::to_string(totalConfirmations/ (NUMBER_OF_RUNS * NUMBER_OF_ROUNDS)) +
-    ", " + std::to_string(totalDeadPeers / (NUMBER_OF_ROUNDS * NUMBER_OF_RUNS)) +
+    return std::to_string(((double)totalConfirmations)/ (NUMBER_OF_RUNS * NUMBER_OF_ROUNDS)) +
+    ", " + std::to_string(((double)totalDeadPeers) / (NUMBER_OF_ROUNDS * NUMBER_OF_RUNS)) +
     ", " + std::to_string(numberOfJoins) + ":" + std::to_string(numberOfHalts) +
     ", " + std::to_string(quorumIntersection);
+}
+
+std::string quickPBFT(int numberOfShards, int numberOfJoins, int numberOfHalts, std::ofstream &log){
+
 }
 
 std::deque<int> scheduleEvents(int numberOfEvents){

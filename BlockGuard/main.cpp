@@ -984,7 +984,7 @@ void smartShard(const std::string& filePath) {
     std::ofstream out;
 	summary.open(filePath + "/summary.csv");
     out.open(filePath + "/smart shard.log");
-    ChurnRateVsQuorumIntersection(summary,out);
+    churnRateVsQuorumIntersection(summary, out);
     summary.close();
     out.close();
 }
