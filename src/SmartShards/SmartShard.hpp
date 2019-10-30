@@ -54,8 +54,8 @@ public:
     void                        makeByzantine           (int peer);
     void                        makeCorrect             (int peer);
     void                        makeRequest             (int forQuorum = -1, int toQuorum = -1, int toPeer = -1);
-    void                        revivePeer              ();
-    void                        dropPeer                ();
+    void                        joinPeer                ();
+    void                        leavePeer               ();
 
     // logging and operators
     void printPeers();

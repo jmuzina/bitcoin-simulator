@@ -211,11 +211,11 @@ std::string intersectionWithHaltsAndJoins(int numberOfShards, int numberOfJoins,
             std::cout << "Round:" << round << std::endl;
             if(joinRounds.front() == round){
                 joinRounds.pop_front();
-                system.revivePeer();
+                system.joinPeer();
             }
             if(haltRounds.front() == round){
                 haltRounds.pop_front();
-                system.dropPeer();
+                system.leavePeer();
             }
 
             for (auto e : system.getQuorums()) {

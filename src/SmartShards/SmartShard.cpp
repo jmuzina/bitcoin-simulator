@@ -126,7 +126,7 @@ int SmartShard::size(){
     return total;
 }
 
-void SmartShard::dropPeer(){
+void SmartShard::leavePeer(){
     assert(_numberOfPeersInReserve > -1);
     if(getByzantine() == _peers.size()){return;}// all peers are dead
 
@@ -158,7 +158,7 @@ void SmartShard::dropPeer(){
     }
 }
 
-void SmartShard::revivePeer(){
+void SmartShard::joinPeer(){
     assert(_numberOfPeersInReserve > -1);
     if(_numberOfPeersInReserve == 0){
 

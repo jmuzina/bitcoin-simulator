@@ -13,6 +13,7 @@
 #include "PBFT/PBFTReferenceCommittee_Test.hpp"
 #include "Common/ByzantineNetwork_Test.hpp"
 #include "Common/NetworkTests.hpp"
+#include "SmartShards/SmartShards_Test.h"
 
 #include <string>
 
@@ -30,6 +31,7 @@ int main(int argc, const char * argv[]){
         RunPBFTRefComTest(filePath);
         RunByzantineNetworkTest(filePath);
         runNetworkTests(filePath);
+        runSmartShardsTest(filePath);
     }else if(testOption == "pbft"){
         RunPBFT_Tests(filePath);
     }else if (testOption == "s_pbft"){
@@ -40,6 +42,8 @@ int main(int argc, const char * argv[]){
         RunByzantineNetworkTest(filePath);
     }else if(testOption == "network"){
         runNetworkTests(filePath);
+    }else if(testOption == "smartshard"){
+        runSmartShardsTest(filePath);
     }
 
     return 0;

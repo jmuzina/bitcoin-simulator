@@ -161,4 +161,4 @@ add_executable(TESTS
         src/ExamplePeer.cpp
         src/ExamplePeer.hpp
         Tests/main.cpp
-        )
+        Tests/SmartShards/SmartShards_Test.cpp Tests/SmartShards/SmartShards_Test.h)
