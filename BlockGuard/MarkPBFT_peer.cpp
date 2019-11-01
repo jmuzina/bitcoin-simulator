@@ -266,8 +266,7 @@ void markPBFT_peer::makeRequest() {
 				}
 			}
 
-			// Send message if idle and message is in queue
-
+			// Send preprepare message if idle and message is in queue
 			if (_state == idle && _requestQueue > 0) {
 				--_requestQueue;
 
