@@ -10,3 +10,5 @@
 *.dSYM
 *.o
 /.vs
+/compile_commands.json
+/BlockGuard/CMakeLists.txt
