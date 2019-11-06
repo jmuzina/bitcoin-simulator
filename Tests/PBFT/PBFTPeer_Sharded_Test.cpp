@@ -9,7 +9,7 @@
 #include <algorithm>
 #include "PBFTPeer_Sharded_Test.hpp"
 
-void RunPBFTPeerShardedTest(std::string filepath){
+void runPBFTPeerShardedTest(std::string filepath){
     std::ofstream log;
     log.open(filepath + "/PBFT_Sharded.log");
     if (log.fail() ){

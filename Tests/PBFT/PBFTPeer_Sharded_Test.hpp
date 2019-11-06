@@ -15,7 +15,7 @@
 #include <fstream>
 #include "../src/PBFT/PBFTPeer_Sharded.hpp"
 
-void RunPBFTPeerShardedTest      (std::string filepath); // run all PBFT tests
+void runPBFTPeerShardedTest      (std::string filepath); // run all PBFT tests
 
 // test for committee PBFT running
 void oneRequestOneCommittee     (std::ostream &log);

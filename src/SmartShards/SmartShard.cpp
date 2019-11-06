@@ -1,7 +1,7 @@
 #include "SmartShard.hpp"
 #include "params_common.h"
 
-SmartShard::SmartShard(const int& shards, std::ostream& out, int delay, int peerspershard = -1, int reserveSize = 0, int quorumIntersection = 1) {
+SmartShard::SmartShard(const int& shards, std::ostream& out, int delay, int peerspershard, int reserveSize, int quorumIntersection) {
 	_out = &out;
 	_shards = shards;
 	if (peerspershard == -1)
@@ -235,3 +235,102 @@ void SmartShard::setFaultTolerance(double tolerance) {
 			(*e)[i]->setFaultTolerance(tolerance);
 
 }
+
+SmartShard::SmartShard (const SmartShard &lhs){
+
+    for(int shard = 0; shard < _system.size(); shard++){
+        delete _system[shard];
+    }
+
+    for(int shard = 0; shard < lhs._system.size(); shard++){
+        _system.push_back(new ByzantineNetwork<SmartShardPBFT_Message, SmartShardPBFT_peer>(*lhs._system[shard]));
+    }
+
+    for(int peer = 0; peer < _peers.size(); peer++){
+        for(auto vpeer : _peers[peer]){
+            delete vpeer;
+        }
+    }
+
+    for(int peer = 0; peer < _peers.size(); peer++){
+        for(auto vpeer : _peers[peer]){
+            _peers[peer].insert(vpeer);
+        }
+    }
+
+    _peersPerShard = lhs._peersPerShard;
+    _shards = lhs._shards;
+    _numberOfPeersInReserve = lhs._numberOfPeersInReserve;
+    _out = lhs._out;
+
+}
+
+SmartShard& SmartShard::operator=(const SmartShard &lhs){
+
+    if(&lhs == this){
+        return *this;
+    }
+
+    for(int shard = 0; shard < _system.size(); shard++){
+        delete _system[shard];
+    }
+
+    for(int shard = 0; shard < lhs._system.size(); shard++){
+        _system.push_back(new ByzantineNetwork<SmartShardPBFT_Message, SmartShardPBFT_peer>(*lhs._system[shard]));
+    }
+
+    for(int peer = 0; peer < _peers.size(); peer++){
+        for(auto vpeer : _peers[peer]){
+            delete vpeer;
+        }
+    }
+
+    for(int peer = 0; peer < _peers.size(); peer++){
+        for(auto vpeer : _peers[peer]){
+            _peers[peer].insert(vpeer);
+        }
+    }
+
+    _peersPerShard = lhs._peersPerShard;
+    _shards = lhs._shards;
+    _numberOfPeersInReserve = lhs._numberOfPeersInReserve;
+    _out = lhs._out;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

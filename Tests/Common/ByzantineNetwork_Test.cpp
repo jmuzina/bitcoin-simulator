@@ -11,7 +11,7 @@
 
 static const int PEERS = 10; 
 
-void RunByzantineNetworkTest(std::string filepath){
+void runByzantineNetworkTest(std::string filepath){
     std::ofstream log;
     log.open(filepath + "/ByzantineNetwork.log");
     if (log.fail() ){

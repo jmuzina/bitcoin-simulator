@@ -8,11 +8,11 @@
 
 #include "PBFTPeerTest.hpp"
 
-void RunPBFT_Tests(std::string pathToFile){
+void runPBFT_Tests(std::string filepath){
     std::ofstream log;
-    log.open(pathToFile + "/PBFT.log");
+    log.open(filepath + "/PBFT.log");
     if (log.fail() ){
-        std::cerr << "Error: could not open file at: "<< pathToFile << std::endl;
+        std::cerr << "Error: could not open file at: " << filepath << std::endl;
     }
     constructors(log);
     testSettersMutators(log);

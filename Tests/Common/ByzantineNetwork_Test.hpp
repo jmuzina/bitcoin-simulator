@@ -16,7 +16,7 @@
 #include "../src/ExamplePeer.hpp"
 #include "../src/Common/ByzantineNetwork.hpp"
 
-void RunByzantineNetworkTest    (std::string filepath);
+void runByzantineNetworkTest    (std::string filepath);
 
 // Byzantine tests
 void testMakeByzantine          (std::ostream &log); // test making peers correct and Byzantine

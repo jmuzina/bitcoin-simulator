@@ -16,7 +16,7 @@
 #include <fstream>
 #include "../src/PBFT/PBFT_Peer.hpp"
 
-void RunPBFT_Tests          (std::string filepath); // run all PBFT tests
+void runPBFT_Tests          (std::string filepath); // run all PBFT tests
 void constructors           (std::ostream &log);// test basic peer constructors
 void testSettersMutators    (std::ostream &log);// test setters and test Mutators
 void testGetters            (std::ostream &log);// test getters

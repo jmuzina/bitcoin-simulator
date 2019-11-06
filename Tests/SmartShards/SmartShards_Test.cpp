@@ -19,6 +19,19 @@ void runSmartShardsTest(std::string filepath){
 }
 
 void peerAccess(std::ostream &log){
+    SmartShard system(5,log,1,4,0,1);
+
+    assert(system.size() == 10);
+    for (int i = 0; i < system.size(); i++){
+        assert(system[i].size() == 2);
+    }
+
+    system = SmartShard(5,log,1,4,0,1);
+
+    assert(system.size() == 10);
+    for (int i = 0; i < system.size(); i++){
+        assert(system[i].size() == 2);
+    }
 
 }
 void peerInit(std::ostream &log){

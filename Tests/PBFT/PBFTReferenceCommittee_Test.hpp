@@ -16,7 +16,7 @@
 #include "../src/PBFT/PBFTPeer_Sharded.hpp"
 #include "../src/PBFT/PBFTReferenceCommittee.hpp"
 
-void RunPBFTRefComTest              (std::string filepath); // run all PBFT tests
+void runPBFTRefComTest              (std::string filepath); // run all PBFT tests
 
 // test init (system setup)
 void testInit                       (std::ostream &log);

@@ -15,7 +15,7 @@ static const int    PEERS       = 128;
 static const double FAULT       = 0.3;
 
 
-void RunPBFTRefComTest (std::string filepath){
+void runPBFTRefComTest (std::string filepath){
     std::ofstream log;
     log.open(filepath + "/PBFTRefCom.log");
     if (log.fail() ){

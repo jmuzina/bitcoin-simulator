@@ -17,21 +17,22 @@ protected:
     typedef ByzantineNetwork<SmartShardPBFT_Message, SmartShardPBFT_peer>* shard;
 
     // system state
-    std::vector<shard>                          _system; // list of shards in the system
-    std::map<int, std::set<SmartShardPBFT_peer*> >    _peers; // peer id, to list of real peers that it is in the quorums (vir peers)
+    std::vector<shard>                              _system; // list of shards in the system
+    std::map<int, std::set<SmartShardPBFT_peer*> >  _peers; // peer id, to list of real peers that it is in the quorums (vir peers)
 
     // system params
-    int                                         _peersPerShard;
-    int                                         _shards;
-    int                                         _numberOfPeersInReserve;
+    int                                             _peersPerShard;
+    int                                             _shards;
+    int                                             _numberOfPeersInReserve;
 
     // logging
-    std::ostream*                               _out;
+    std::ostream*                                   _out;
 
 public:
 	~SmartShard                                         () { for (auto e : _system) delete e; }
 	//const int& shards, std::ostream& out, int delay, int peerspershard = -1, int reserveSize = 0, int quorumIntersection = 1)
-	SmartShard                                          (const int&, std::ostream&, int, int, int, int);
+	SmartShard                                          (const int& shards, std::ostream& out, int delay, int peerspershard = -1, int reserveSize = 0, int quorumIntersection = 1);
+    SmartShard                                          (const SmartShard&);
 
 	// setters
 	void                        setFaultTolerance       (double);
@@ -60,6 +61,7 @@ public:
     // logging and operators
     void printPeers();
     std::set<SmartShardPBFT_peer*>&   operator[]              (int i);
+    SmartShard&                       operator=               (const SmartShard&);
 
 };
 

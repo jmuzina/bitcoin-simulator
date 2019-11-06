@@ -26,20 +26,20 @@ int main(int argc, const char * argv[]){
     std::string filePath = argv[2];
 
     if(testOption == "all"){
-        RunPBFT_Tests(filePath);
-        RunPBFTPeerShardedTest(filePath);
-        RunPBFTRefComTest(filePath);
-        RunByzantineNetworkTest(filePath);
+        runPBFT_Tests(filePath);
+        runPBFTPeerShardedTest(filePath);
+        runPBFTRefComTest(filePath);
+        runByzantineNetworkTest(filePath);
         runNetworkTests(filePath);
         runSmartShardsTest(filePath);
     }else if(testOption == "pbft"){
-        RunPBFT_Tests(filePath);
+        runPBFT_Tests(filePath);
     }else if (testOption == "s_pbft"){
-        RunPBFTPeerShardedTest(filePath);
+        runPBFTPeerShardedTest(filePath);
     }else if(testOption == "ref_com_pbft"){
-        RunPBFTRefComTest(filePath);
+        runPBFTRefComTest(filePath);
     }else if(testOption == "b_network"){
-        RunByzantineNetworkTest(filePath);
+        runByzantineNetworkTest(filePath);
     }else if(testOption == "network"){
         runNetworkTests(filePath);
     }else if(testOption == "smartshard"){
