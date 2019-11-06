@@ -13,7 +13,7 @@ void churnRateVsQuorumIntersection(std::ofstream &csv, std::ofstream &log){
      * I = 2P/S(S-1)
      */
 
-    int numberOfShards = MAX_NUMBER_OF_SHARDS;
+    int numberOfShards = STARTING_NUMBER_OF_SHARDS;
     csv << "5 Quorum, quorum Intersection " << std::endl;
     csv << "confirmations, total dead peers, churnRate, Intersection" << std::endl;
     csv << intersectionWithHaltsAndJoins(numberOfShards, PEER_COUNT * (0.0 / 5), PEER_COUNT, log) << std::endl;
@@ -101,7 +101,7 @@ void churnRateVsQuorumIntersectionQuick(std::ofstream &csv, std::ofstream &log){
      * I = 2P/S(S-1)
      */
 
-    int numberOfShards = MAX_NUMBER_OF_SHARDS;
+    int numberOfShards = STARTING_NUMBER_OF_SHARDS;
     csv << "5 Quorum, quorum Intersection " << std::endl;
     csv << "confirmations, total dead peers, churnRate, Intersection" << std::endl;
     csv << quickPBFT(numberOfShards, PEER_COUNT * (0.0 / 5), PEER_COUNT, log) << std::endl;

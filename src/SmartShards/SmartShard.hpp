@@ -39,16 +39,18 @@ public:
     void                        setRequestsPerRound     (int requestPerRound);
     void                        setRoundsToRequest      (int roundstoRequest);
     void                        setMaxWait              ();
+    void                        setReserve              (int r)  { _numberOfPeersInReserve = r;};
 
     // getters
-    int                         size();
-    int                         getConfirmationCount    ();
+    int                         size                    ()const  { return _peers.size();};
+    int                         getConfirmationCount    ()const;
     bool                        isByzantine             (int peer);
-    int                         getByzantine            ();
-    int                         shardCount              () { return _system.size(); }
-    int                         peerCount               () { return _peers.size(); }
-    std::vector<shard>          getQuorums              () { return _system; }
-    int                         getShardSize            () { return _peersPerShard; }
+    int                         getByzantine            ()const;
+    int                         shardCount              ()const  { return _system.size(); }
+    int                         peerCount               ()const  { return _peers.size(); }
+    std::vector<shard>          getQuorums              ()const  { return _system; }
+    int                         getShardSize            ()const  { return _peersPerShard; }
+    int                         getReserve              ()const  { return _numberOfPeersInReserve;};
 
     // mutators
     void                        setupShardNeighborhood  ();

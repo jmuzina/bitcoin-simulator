@@ -73,7 +73,7 @@ void SmartShard::makeRequest(int forQuorum, int toQuorum, int toPeer) {
 
 }
 
-int SmartShard::getByzantine(){
+int SmartShard::getByzantine()const{
     int total = 0;
     for (int peer = 0; peer < _peers.size(); ++peer)
         if (isByzantine(peer))
@@ -81,7 +81,7 @@ int SmartShard::getByzantine(){
     return total;
 }
 
-bool SmartShard::isByzantine(int peer) {
+bool SmartShard::isByzantine(int peer){
     auto it = _peers.find(peer);
     if (it == _peers.end())
         std::cerr << "peer does not exist finding byzantine";
@@ -104,7 +104,7 @@ void SmartShard::makeByzantine(int peer) {
     }
 }
 
-int SmartShard::getConfirmationCount() {
+int SmartShard::getConfirmationCount()const {
     int total = 0;
     for (auto quorum : _system) {
         int max = (*quorum)[0]->ledger().size();
@@ -114,14 +114,6 @@ int SmartShard::getConfirmationCount() {
             }
         }
         total += max;
-    }
-    return total;
-}
-
-int SmartShard::size(){
-    int total = 0;
-    for(auto s : _system){
-        total += s->size();
     }
     return total;
 }
