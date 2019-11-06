@@ -4,6 +4,7 @@
 #include "quickshards.h"
 
 quickShards::quickShards(int peers, int intersections, double tolerance) {
+    srand(time(nullptr));
     _intersections = intersections;
     int quorums = 0.5 * sqrt(8 * peers + _intersections) / sqrt(_intersections) + 1;
 
@@ -54,4 +55,34 @@ int quickShards::getConsensusCount() {
         if (e.second.validConsensus() && e.second.validIntersections())
             ++count;
     return count;
+}
+
+void quickShards::setRandomByzantineTrue(){
+    if (_reserve > 0)
+        _reserve--;
+    else{
+        auto tmp = _shards[rand()%_shards.size()].getPeer(rand()% _peersPerShard);
+        while (tmp->isByzantine()){
+            tmp = _shards[rand()%_shards.size()].getPeer(rand()% _peersPerShard);
+        }
+        tmp->setByzantineStatus(true);
+    }
+}
+void quickShards::setRandomByzantineFalse() {
+    // Get index of byzantine peers;
+    std::vector<std::pair<int,int>> byzantineList;
+    for(int i = 0; i < _shards.size() ; ++i){
+        for(int j = 0; j < _shards[i].getPeerList().size(); ++j)
+            if (_shards[i].getPeer(j)->isByzantine()){
+                byzantineList.push_back(std::make_pair(i,j));
+            }
+    }
+    // if no byzantine, add to reserve
+    if(byzantineList.empty())
+        ++_reserve;
+    // Randomly choose peer index and make correct
+    else{
+        auto tmp = byzantineList[rand()%byzantineList.size()];
+        _shards[tmp.first].getPeer(tmp.second)->setByzantineStatus(false);
+    }
 }

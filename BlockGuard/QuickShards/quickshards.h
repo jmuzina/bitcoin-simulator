@@ -12,6 +12,7 @@
 #include <random>
 #include <ctime>
 #include <set>
+#include <vector>
 
 class quickPeer {
 private:
@@ -33,8 +34,8 @@ public:
     bool isByzantine() { return _byzantineStatus; }
 
     void setCoPeer(quickPeer *a) { _coPeer = a; }
-
-    quickPeer *getCoPeer() { return _coPeer; };
+    quickPeer* getSelf() {return this;}
+    quickPeer* getCoPeer() { return _coPeer; };
 
     std::pair<int, int> getID() const { return _peerID; }
 
@@ -60,6 +61,7 @@ public:
         _f = f;
         _otherQuorumCount = otherQuorums;
     };
+    std::map<int, quickPeer>& getPeerList() {return _peers;}
     bool validConsensus(){int count = 0;
         for(auto e: _peers) if (!e.second.isByzantine()) count++;
         bool result = count > 2*_f;
@@ -88,17 +90,9 @@ public:
     quickShards() {}
     quickShards(int, int, double tolerance = double(1.0) / double(3.0));
     int getConsensusCount();
-    void setRandomByzantine(){
-        srand(time(nullptr));
-        if (_reserve > 0)
-            _reserve--;
-        else{
-            auto tmp = _shards[rand()%_shards.size()].getPeer(rand()% _peersPerShard);
-            while (tmp->isByzantine()){
-                tmp = _shards[rand()%_shards.size()].getPeer(rand()% _peersPerShard);
-            }
-            tmp->setByzantineStatus(true);
-        }
-    }
+    void setRandomByzantineTrue();
+    void setRandomByzantineFalse();
+
+
 };
 #endif //QUICKSMARTSHARD_QUICKSHARDS_H
