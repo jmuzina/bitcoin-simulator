@@ -188,18 +188,21 @@ std::string intersectionWithHaltsAndJoins(int numberOfShards, int numberOfJoins,
      * P = I*(S(S-1))/2
      * I = 2P/S(S-1)
      */
-    int quorumIntersection = PEER_COUNT/((numberOfShards*(numberOfShards-1))/2); // I
+    int minNumberOfPeers = ((numberOfShards*(numberOfShards-1))/2); // min number of peers in the system given number of shards
+    int quorumIntersection = PEER_COUNT/minNumberOfPeers; // max intersection given number of peers
     int peerPerShard = quorumIntersection*(numberOfShards-1); // -1 for self
     if(peerPerShard < 2){return "";}
     int totalConfirmations = 0;
     int totalDeadPeers = 0;
+    assert((PEER_COUNT - peerPerShard*numberOfShards) >= 0); // should never need more peers then the total peers in the system
+    int reserve = (PEER_COUNT - peerPerShard*numberOfShards) + RESERVE_SIZE;
 
     std::deque<int> joinRounds = scheduleEvents(numberOfJoins);
     std::deque<int> haltRounds = scheduleEvents(numberOfHalts);
 
     // --------------------------- number of experiments --------------------------- //
     for(int run = 0; run < NUMBER_OF_RUNS; run++) {
-        SmartShard system(numberOfShards, log, MAX_DELAY, peerPerShard, RESERVE_SIZE, quorumIntersection);
+        SmartShard system(numberOfShards, log, MAX_DELAY, peerPerShard, reserve, quorumIntersection);
         system.setFaultTolerance(FAULT);
         system.setRequestsPerRound(NUMBER_OF_REQUEST); // number of requests to make at one time
         system.setRoundsToRequest(ROUNDS_TO_MAKE_REQUEST); // number of times to make a request

@@ -34,8 +34,8 @@ SmartShard::SmartShard(const int& shards, std::ostream& out, int delay, int peer
                 SmartShardPBFT_peer* peerFromOtherQuorum = (*_system[nextQuorum])[quorum + otherPBFTInstances];
                 assert(peerFromThisQuorum != NULL);
                 assert(peerFromOtherQuorum != NULL);
-                _peers[vPeer].insert(peerFromThisQuorum);
-                _peers[vPeer].insert(peerFromOtherQuorum);
+                _peers[vPeer].first = peerFromThisQuorum;
+                _peers[vPeer].second = peerFromOtherQuorum;
                 vPeer++;
                 thisPBFTInstances++;
             }
@@ -43,12 +43,6 @@ SmartShard::SmartShard(const int& shards, std::ostream& out, int delay, int peer
         }
     }
     setupShardNeighborhood();
-
-    if(shards*peerspershard < PEER_COUNT){
-        _numberOfPeersInReserve = reserveSize + (PEER_COUNT - (shards*peerspershard)); // add left over peers to reserve
-    }else {
-        _numberOfPeersInReserve = reserveSize;
-    }
 }
 
 void SmartShard::makeRequest(int forQuorum, int toQuorum, int toPeer) {
@@ -81,11 +75,12 @@ int SmartShard::getByzantine()const{
     return total;
 }
 
-bool SmartShard::isByzantine(int peer){
+bool SmartShard::isByzantine(int peer)const{
     auto it = _peers.find(peer);
     if (it == _peers.end())
         std::cerr << "peer does not exist finding byzantine";
-    return ((*_peers[peer].begin())->isByzantine());
+    instancesOfPBFT instances = _peers.find(peer)->second;
+    return instances.first->isByzantine();
 }
 
 void SmartShard::makeCorrect(int peer) {

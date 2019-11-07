@@ -46,6 +46,10 @@ void intersection(std::ostream &log){
     assert(system.getReserve() == 0);
     for (int i = 0; i < system.size(); i++){
         assert(system[i].size() == 2);
+        assert(system[i].begin())
+        for(int other = 0; other < system.size(); other++){
+            assert()
+        }
     }
 
     int quorumIntersection = 100/((5*(5-1))/2); // = 10
@@ -60,7 +64,7 @@ void intersection(std::ostream &log){
 
     quorumIntersection = 100/((6*(6-1))/2); // = 6 remainder 1
     peerPerShard = quorumIntersection*(6-1); // = 30
-    system = SmartShard(5,log,1,peerPerShard,0,quorumIntersection);
+    system = SmartShard(5,log,1,peerPerShard,10,quorumIntersection);
 
     assert(system.size() == 90);
     assert(system.getReserve() == 10); // 90 peers used in system 10 left over for reserve

@@ -7,7 +7,7 @@
 #define SMART_SHARD_HPP
 
 #include <vector>
-#include <set>
+#include <utility>
 #include "SmartShardPBFT_peer.hpp"
 #include "Common/ByzantineNetwork.hpp"
 
@@ -15,10 +15,11 @@ class SmartShard {
 protected:
     // type abbreviations
     typedef ByzantineNetwork<SmartShardPBFT_Message, SmartShardPBFT_peer>* shard;
+    typedef std::pair<SmartShardPBFT_peer*,SmartShardPBFT_peer*> instancesOfPBFT;
 
     // system state
     std::vector<shard>                              _system; // list of shards in the system
-    std::map<int, std::set<SmartShardPBFT_peer*> >  _peers; // peer id, to list of real peers that it is in the quorums (vir peers)
+    std::map<int, instancesOfPBFT > _peers; // peer id, to list of real peers that it is in the quorums (vir peers)
 
     // system params
     int                                             _peersPerShard;
@@ -44,7 +45,7 @@ public:
     // getters
     int                         size                    ()const  { return _peers.size();};
     int                         getConfirmationCount    ()const;
-    bool                        isByzantine             (int peer);
+    bool                        isByzantine             (int peer)const;
     int                         getByzantine            ()const;
     int                         shardCount              ()const  { return _system.size(); }
     int                         peerCount               ()const  { return _peers.size(); }
