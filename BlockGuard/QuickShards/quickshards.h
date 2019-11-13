@@ -13,6 +13,8 @@
 #include <ctime>
 #include <set>
 #include <vector>
+#include <deque>
+#include <algorithm>
 
 class quickPeer {
 private:
@@ -77,6 +79,7 @@ public:
         }
         return (intersectCount.size() == _otherQuorumCount);
     }
+    int getF() {return _f;}
 };
 
 class quickShards {
@@ -92,7 +95,16 @@ public:
     int getConsensusCount();
     void setRandomByzantineTrue();
     void setRandomByzantineFalse();
-
+    void getSummary(std::ostream&);
+    int getValidPeers();
+    int getNumQuorums(){return _shards.size();}
+    int getPeersInQuorum() {return _peersPerShard;}
+    int getReserve() {return _reserve;}
+    int getByzantineNumber();
+    void setReserve(int a){ _reserve = a;}
+    void setAllCorrect();
 
 };
+
+std::deque<int> scheduleEvents(int, int);
 #endif //QUICKSMARTSHARD_QUICKSHARDS_H

@@ -16,11 +16,6 @@ quickShards::quickShards(int peers, int intersections, double tolerance) {
     // Create shards
     _peersPerShard = (quorums - 1) * _intersections;
     int f = (_peersPerShard-1) * tolerance;
-    std::cout << "quorums=" << quorums << std::endl;
-    std::cout << "peersPerQuorums=" << _peersPerShard << std::endl;
-    std::cout << "f= " << f << std::endl;
-    std::cout << "tolerance= " << tolerance << std::endl;
-    std::cout << "reserve= " << _reserve << std::endl;
     for (int i = 0; i < quorums; ++i) {
         _shards[i] = quickPBFT(i, _peersPerShard, quorums-1, f);
     }
@@ -58,6 +53,10 @@ int quickShards::getConsensusCount() {
 }
 
 void quickShards::setRandomByzantineTrue(){
+
+    if (getByzantineNumber() == _peersPerShard*_shards.size()/2){
+        return;
+    }
     if (_reserve > 0)
         _reserve--;
     else{
@@ -84,5 +83,63 @@ void quickShards::setRandomByzantineFalse() {
     else{
         auto tmp = byzantineList[rand()%byzantineList.size()];
         _shards[tmp.first].getPeer(tmp.second)->setByzantineStatus(false);
+    }
+}
+
+void quickShards::getSummary(std::ostream& out){
+    out << "quorums=" << _shards.size() << std::endl;
+    out << "peersPerQuorums=" << _peersPerShard << std::endl;
+    out << "f= " << _shards.begin()->second.getF() << std::endl;
+    out << "reserve= " << _reserve << std::endl;
+    out << "valid peers= " << getValidPeers()<<std::endl;
+    out << std::endl;
+}
+
+int quickShards::getValidPeers() {
+    int count = 0;
+    for(auto e: _shards){
+        for(int peer = 0; peer < _peersPerShard; ++peer){
+            if (!e.second.getPeer(peer)->isByzantine())
+                ++count;
+        }
+    }
+    return count/2;
+}
+
+std::deque<int> scheduleEvents(int numberOfEvents, int numberOfRounds){
+    assert(numberOfEvents <= numberOfRounds);
+    std::deque<int> schedule = std::deque<int>();
+    std::uniform_int_distribution<int> randomDistribution(1,numberOfRounds);
+    int seed = time(nullptr);
+    std::default_random_engine randomGenerator (seed);
+
+    for(int i = 0; i < numberOfEvents; i++) {
+        int randomRound = 0;
+        do {
+            randomRound = randomDistribution(randomGenerator);
+        } while (std::find(schedule.begin(), schedule.end(), randomRound) != schedule.end());
+        schedule.push_back(randomRound);
+    }
+
+    std::sort(schedule.begin(), schedule.end());
+
+    return schedule;
+}
+
+int quickShards::getByzantineNumber() {
+    int count = 0;
+    for(auto e: _shards){
+        for(int peer = 0; peer < _peersPerShard; ++peer){
+            if (e.second.getPeer(peer)->isByzantine())
+                ++count;
+        }
+    }
+    return count/2;
+}
+
+void quickShards::setAllCorrect() {
+    for(auto e: _shards){
+        for(int peer = 0 ; peer < _peersPerShard; ++peer)
+            e.second.getPeer(peer)->setByzantineStatus(false);
     }
 }
