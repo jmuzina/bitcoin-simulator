@@ -26,6 +26,7 @@ struct BitcoinMessage {
         block = rhs.block;
         peerId = rhs.peerId;
         length = rhs.length;
+        return *this;
     }
 };
 /*

@@ -18,7 +18,7 @@ public:
     void                            readBlock               ();
     void                            transmitBlock           ();
     void                            setCurChain             (const Blockchain& setFrom) { *curChain = setFrom; };
-    Blockchain*                     getCurChain             () const;
+    Blockchain*                     getCurChain             () const                    { return curChain; };
     std::string                     getId                   () const                    { return peerId; };
 private:
     std::string                     peerId;

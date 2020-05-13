@@ -16,8 +16,8 @@ void BitcoinPeer::preformComputation() {
 void BitcoinPeer::readBlock() {
     int largestSize = 0;
     // Find largest message length the peer knows of
-    for (int i = 0; i < _inStream.size; ++i) {
-        int msgSize = _inStream[i].getMessage().length;
+    for (auto it = _inStream.begin(); it != _inStream.end(); ++it) {
+        int msgSize = it->getMessage().length;
         if (msgSize > largestSize) largestSize = msgSize;
     }
 
