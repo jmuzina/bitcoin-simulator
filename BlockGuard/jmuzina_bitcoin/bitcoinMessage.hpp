@@ -35,10 +35,5 @@ struct BitcoinMessage {
         return *this;
     }
 };
-/*
-Packet<BitcoinMessage>::Packet() {
-    _body = 
-}
-*/
 
 #endif 

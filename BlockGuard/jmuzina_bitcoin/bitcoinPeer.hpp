@@ -9,10 +9,12 @@ class BitcoinPeer : public Peer<BitcoinMessage> { // inherits from peer class
 public:
     // Attributes
     Blockchain*                     curChain; // This peer's version of the blockchain
+    int                             mining;   // Block height currently being mined
 
     // Methods
                                     BitcoinPeer             (const std::string);
                                     ~BitcoinPeer            () override                 { delete curChain; };
+    void                            mineNext                ();
     void                            makeRequest             () override;
     void                            preformComputation      () override;
     void                            readBlock               ();

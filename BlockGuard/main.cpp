@@ -155,9 +155,10 @@ int main(int argc, const char* argv[]) {
 
 #include "jmuzina_bitcoin/bitcoinMessage.hpp"
 #include "jmuzina_bitcoin/bitcoinPeer.hpp"
+#include <stdlib.h>
+#include <time.h>
 
 void Example(std::ofstream& logFile) {
-	//ByzantineNetwork<ExampleMessage, ExamplePeer> system;
 	ByzantineNetwork<BitcoinMessage, BitcoinPeer> system;
 	system.setLog(logFile); // set the system to write log to file logFile
 	system.setToRandom(); // set system to use a uniform random distribution of weights on edges (channel delays)
@@ -173,7 +174,14 @@ void Example(std::ofstream& logFile) {
 	//      to add up each peers indivudal message count (example of looping thouth the Network class)
 
 	int numberOfMessages = 0;
+
+	//srand(time(nullptr));
+
+	//system[0]->mineNext(); // genesis block
+	//system[0]->transmitBlock();
+
 	for (int i = 0; i < system.size(); i++) {
+
 		system[i]->preformComputation();
 		numberOfMessages += system[i]->getMessageCount(); // notice that the index operator ([]) return a pointer to a peer. NEVER DELETE THIS PEER INSTANCE.
 														  //    The netwrok class deconstructor will get ride off ALL peer instances once it is deconstructed.

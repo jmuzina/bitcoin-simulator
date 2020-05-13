@@ -1,5 +1,7 @@
 #include "bitcoinPeer.hpp"
 #include <iostream>
+#include <stdlib.h>     
+#include <time.h>       
 
 BitcoinPeer::BitcoinPeer(const std::string id) {
     curChain = new Blockchain(true);
@@ -9,11 +11,28 @@ BitcoinPeer::BitcoinPeer(const std::string id) {
 void BitcoinPeer::makeRequest() {
 
 }
-void BitcoinPeer::preformComputation() {
 
+void BitcoinPeer::preformComputation() {
+    readBlock();
+    mineNext();
+    transmitBlock();
+}
+
+void BitcoinPeer::mineNext() {
+    std::cerr << "attempting to mine " << curChain->getChainSize() << "\n";
+    srand(time(nullptr));
+    const int toGuess = rand() % 15 + 1;
+    int guess = 0;
+    while (guess != toGuess) {
+        guess = rand() % 15 + 1;
+    }
+    const int curLength = curChain->getChainSize();
+    const std::string newHash = std::to_string(toGuess * curLength) + peerId;
+    curChain->createBlock(curLength, curChain->getBlockAt(curLength - 1).getHash(), newHash, {getId()});
 }
 
 void BitcoinPeer::readBlock() {
+    //for (auto it = neighbors().begin(); it != neighbors().end(); ++it) std::cerr << *it << "\n";
     int largestSize = 0;
     // Find largest message length the peer knows of
     for (auto it = _inStream.begin(); it != _inStream.end(); ++it) {
@@ -27,6 +46,7 @@ void BitcoinPeer::readBlock() {
     // iterator points to maps of peer ids and peer objects
     for (auto it = _neighbors.begin(); it != _neighbors.end(); ++it) {
         std::string neighborId = it->first;
+        std::cerr << "checking " << neighborId << "\n";
         BitcoinPeer* neighborOb = static_cast<BitcoinPeer*>(it->second);
         // Finds largest known blockchain
         // If the largest known chain came from a valid peer, it is the largest chain.
