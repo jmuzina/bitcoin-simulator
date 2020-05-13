@@ -37,5 +37,17 @@ void BitcoinPeer::readBlock() {
 }
 
 void BitcoinPeer::transmitBlock() {
+    Blockchain* curChain = getCurChain();
+    int curChainSize = curChain->getChainSize();
+    Block nextBlock(curChain->getBlockAt(curChainSize - 1));
+    BitcoinMessage toSend(nextBlock, peerId, curChainSize + 1);
 
+    for (auto it = _neighbors.begin(); it != _neighbors.end(); ++it) {
+        std::string neighborId = it->first;
+        BitcoinPeer* neighborOb = static_cast<BitcoinPeer*>(it->second);
+        Packet<BitcoinMessage> msgPacket("", neighborId, _id);
+        msgPacket.setBody(toSend);
+        neighborOb->send(msgPacket);
+        _outStream.push_back(msgPacket);
+    }
 }

@@ -14,6 +14,12 @@ struct BitcoinMessage {
         length = 0;
     }
 
+    BitcoinMessage(const Block& newBlock, const std::string id, const int len) {
+        block = newBlock;
+        peerId = id;
+        length = len;
+    }
+
     // Copy constructor
     BitcoinMessage(const BitcoinMessage& copy) { 
         block = copy.block; 
