@@ -14,6 +14,12 @@ struct BitcoinMessage {
         length = 0;
     }
 
+    BitcoinMessage(const std::string id) {
+        block = Block();
+        peerId = id;
+        length = 1;
+    }
+
     BitcoinMessage(const Block& newBlock, const std::string id, const int len) {
         block = newBlock;
         peerId = id;
