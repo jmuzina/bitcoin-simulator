@@ -160,7 +160,7 @@ void startMiners(ByzantineNetwork<BitcoinMessage, BitcoinMiner> &system) {
 	int miner = 0;
 	int completed = 0;
 	while (completed != 100) {
-		if (system[miner]->getCurChain()->getChainSize() != 100)
+		if (system[miner]->getCurChain()->getChainSize() != 50)
 			system[miner++]->preformComputation();
 		else {
 			++miner;
@@ -171,74 +171,85 @@ void startMiners(ByzantineNetwork<BitcoinMessage, BitcoinMiner> &system) {
 }
 
 void Example(std::ofstream& logFile) {
-	ByzantineNetwork<BitcoinMessage, BitcoinMiner> system;
-	//system.setToPoisson();
-	system.setAvgDelay(8);
-	//system.setMinDelay(10);
-	//system.setMaxDelay(50);
-	system.setLog(logFile);
-	const int MINERS = 100;
-	const int BLOCKS = 100;
-	const bool PRINT_INCONSISTENCIES = false;
+	const float TRIALS = 15.0;
+	for (int delay = 1; delay <= 200; delay += 2) {
+		float totalThroughput = 0.0;
+		std::cout << "---Running " << TRIALS << " trials with avg delay = " << delay << "--\n";
+		for (int trial = 1; trial <= TRIALS; ++trial) {
+			ByzantineNetwork<BitcoinMessage, BitcoinMiner> system;
+			//system.setToPoisson();
+			system.setAvgDelay(delay);
+			//system.setMinDelay(10);
+			//system.setMaxDelay(50);
+			system.setLog(logFile);
+			const int MINERS = 100;
+			const int BLOCKS = 50;
+			const bool PRINT_INCONSISTENCIES = false;
 
-	system.initNetwork(MINERS); // Initialize the system (create it) with 100 peers given the above settings
+			system.initNetwork(MINERS); // Initialize the system (create it) with 100 peers given the above settings
 
-	auto begin_time = std::chrono::high_resolution_clock::now();
+			auto begin_time = std::chrono::high_resolution_clock::now();
 
-	startMiners(system);
+			startMiners(system);
 
-	auto end_time = std::chrono::high_resolution_clock::now();
+			auto end_time = std::chrono::high_resolution_clock::now();
 
-	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time-begin_time);
+			auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time-begin_time);
 
-	std::cout << "\n*********************************************\n\tAll miners have finished!\nTotal time taken: " << static_cast<float>(duration.count()) / 1000.0 << " seconds.\n";
-	logFile << "\n*********************************************\n\tAll miners have finished!\nTotal time taken: " << static_cast<float>(duration.count()) / 1000.0 << " seconds.\n";
-	std::cout << "\t Throughput: " << BLOCKS / (static_cast<float>(duration.count()) / 1000.0) << " blocks per second.\n";
-	logFile << "\t Throughput: " << BLOCKS / (static_cast<float>(duration.count()) / 1000.0) << " blocks per second.\n";
+			//std::cout << "\n*********************************************\n\tAll miners have finished!\nTotal time taken: " << static_cast<float>(duration.count()) / 1000.0 << " seconds.\n";
+			//logFile << static_cast<float>(duration.count()) / 1000.0 << "\n";
+			float throughput = BLOCKS / (static_cast<float>(duration.count()) / 1000.0);
+			std::cout << "Trial " << trial << ":\t" << throughput << " blocks per second.\n";
+			//logFile << throughput << "\n";
+			totalThroughput += throughput;
 
-	bool match = true;
+			bool match = true;
 
-	for (int i = 0; i < MINERS; ++i) {
-		for (int j = i + 1; j < MINERS; ++j) {
-			if (i >= j) continue;
-			Blockchain* t1 = system[i]->getCurChain();
-			Blockchain* t2 = system[j]->getCurChain();
-			for (int b = 0; b < BLOCKS; ++b) {
-				Block b1 = t1->getBlockAt(b);
-				Block b2 = t2->getBlockAt(b);
+			for (int i = 0; i < MINERS; ++i) {
+				for (int j = i + 1; j < MINERS; ++j) {
+					if (i >= j) continue;
+					Blockchain* t1 = system[i]->getCurChain();
+					Blockchain* t2 = system[j]->getCurChain();
+					for (int b = 0; b < BLOCKS; ++b) {
+						Block b1 = t1->getBlockAt(b);
+						Block b2 = t2->getBlockAt(b);
 
-				std::string h1 = splitHash(b1.getHash()).getHash();
-				std::string h2 = splitHash(b2.getHash()).getHash();
+						std::string h1 = splitHash(b1.getHash()).getHash();
+						std::string h2 = splitHash(b2.getHash()).getHash();
 
-				std::string p1 = b1.getPreviousHash();
-				std::string p2 = b2.getPreviousHash();
+						std::string p1 = b1.getPreviousHash();
+						std::string p2 = b2.getPreviousHash();
 
-				int i1 = b1.getIndex();
-				int i2 = b2.getIndex();
+						int i1 = b1.getIndex();
+						int i2 = b2.getIndex();
 
-				if (h1 != h2 || p1 != p2 || i1 != i2) {
-					if (PRINT_INCONSISTENCIES) {
-						std::cerr << "CHAIN ERROR - MINERS " << i << " & " << j << "\n";
-						std::cerr << "BLOCK " << b << "\n";
-						std::cerr << "Hashes: " << h1 << " | " << h2 << "\n";
-						std::cerr << "Prev hashes: " << p1 << " | " << p2 << "\n";
-						std::cerr << "Indexes: " << i1 << " | " << i2 << "\n";
+						if (h1 != h2 || p1 != p2 || i1 != i2) {
+							if (PRINT_INCONSISTENCIES) {
+								std::cerr << "CHAIN ERROR - MINERS " << i << " & " << j << "\n";
+								std::cerr << "BLOCK " << b << "\n";
+								std::cerr << "Hashes: " << h1 << " | " << h2 << "\n";
+								std::cerr << "Prev hashes: " << p1 << " | " << p2 << "\n";
+								std::cerr << "Indexes: " << i1 << " | " << i2 << "\n";
+							}
+							match = false;
+						}
 					}
-					match = false;
 				}
 			}
+			
+			if (match) {
+				//std::cerr << "\n*******************************\n\tSUCCESS - All miners have identical blockchains!\n";
+				//logFile << "\n*******************************\n\tSUCCESS - All miners have identical blockchains!\n";
+			}
+			else {
+				std::cerr << "\n****************************************************\n\tERROR - Forks found!\n";
+				logFile << "\n****************************************************\n\tERROR - Forks found!\n";
+			}
 		}
+		float averageForTrial = totalThroughput / TRIALS;
+		std::cout << "Average for delay = " << delay << ":\t" << averageForTrial << "\n";
+		logFile << delay << "\t" <<averageForTrial << "\n";
 	}
-	
-	if (match) {
-		std::cerr << "\n*******************************\n\tSUCCESS - All miners have identical blockchains!\n";
-		logFile << "\n*******************************\n\tSUCCESS - All miners have identical blockchains!\n";
-	}
-	else {
-		std::cerr << "\n****************************************************\n\tERROR - Forks found!\n";
-		logFile << "\n****************************************************\n\tERROR - Forks found!\n";
-	}
-	
 }
 
 void bitcoin(std::ofstream& out, int avgDelay) {

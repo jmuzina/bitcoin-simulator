@@ -45,7 +45,7 @@ void BitcoinMiner::preformComputation() {
     // Check node messages to make sure our chain isn't out of date
     readBlock(false);
     // continues executing until we've mined an arbitrary number of blocks
-    if (curChain->getChainSize() != 100) {
+    if (curChain->getChainSize() != 50) {
         std::string hash = (curChain->getChainSize() > 1 ? getSHA(lastNonce) : "genesisHash"); // Miner's attempted Proof of Work solution
         std::string challengeBits = hash.substr(0, 2); // First four bits of attempted solution
         const bool outdated = readBlock(true); // Checks that nobody has beaten the miner since we last checked
@@ -69,10 +69,10 @@ void BitcoinMiner::preformComputation() {
 // Add solved block blockchain
 void BitcoinMiner::mineNext(const std::string newHash) {
     const int curLength = curChain->getChainSize();
-    std::cerr << "---------------------------\nBlock " << curLength << " has been mined by " << _id << "\n";
+    //std::cerr << "---------------------------\nBlock " << curLength << " has been mined by " << _id << "\n";
 
     const std::string prevHash = (curLength > 1 ? splitHash(curChain->getBlockAt(curLength - 1).getHash()).getHash() : "");
-    std::cerr << prevHash << " -> " << newHash << "\n";
+    //std::cerr << prevHash << " -> " << newHash << "\n";
     curChain->createBlock(curLength, prevHash, newHash + ":" + std::to_string(lastNonce), {_id}); // add to local blockchain
     transmitBlock(); // send to other miners
 }
@@ -137,7 +137,7 @@ bool BitcoinMiner::readBlock(const bool outdatedCheck) {
             else picosha2::hash256_hex_string(prevSplit.getHash() + std::to_string(curSplit.getNonce()), curHashCheck);
 
             if ((curSplit.getHash() != curHashCheck) || (prevSplit.getHash() != splitHash(neighborChain->getBlockAt(curPos).getPreviousHash()).getHash())) {
-                std::cerr << _id << " is forked!\n";
+                //std::cerr << _id << " is forked!\n";
                 // This miner is on a fork
                 int forkPos = curChain->getChainSize() - 1;
                 while (forkPos != 0) {
@@ -174,11 +174,11 @@ bool BitcoinMiner::readBlock(const bool outdatedCheck) {
 
                     if ((verifySplit.getHash() == verifyHash) && (prevVerifySplit.getHash() == splitHash(neighborChain->getBlockAt(verifyPos).getPreviousHash()).getHash())) {
                         const int newIndex = curChain->getBlockAt(curChain->getChainSize() - 1).getIndex() + 1;
-                        std::cerr << "top block is " << curChain->getChainSize() - 1 << ", adding new block at " << curChain->getChainSize() << "\n";
+                        //std::cerr << "top block is " << curChain->getChainSize() - 1 << ", adding new block at " << curChain->getChainSize() << "\n";
                         curChain->createBlock(curChain->getChainSize(), prevVerifySplit.getHash(), verifySplit.getHash() + ":" + std::to_string(curSplit.getNonce()), {verifyId});
                     }
                 }
-                std::cerr << _id << "'s fork merged and corrected with " << neighborId << "!\n";
+                //std::cerr << _id << "'s fork merged and corrected with " << neighborId << "!\n";
                 break;
             }
             else {
