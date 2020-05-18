@@ -155,13 +155,13 @@ int main(int argc, const char* argv[]) {
 
 #include "jmuzina_bitcoin/BitcoinMessage.hpp"
 #include "jmuzina_bitcoin/BitcoinMiner.hpp"
-#include <stdlib.h>
-#include <time.h>
 
-int miningDifficulty(const int MINERS) {
-	int result = ((pow(MINERS, 2) * 0.00001) - (0.1 * MINERS) + 50);
-	if (result > 0) return result;
-	else return 2;
+void startMiners(ByzantineNetwork<BitcoinMessage, BitcoinMiner> &system) {
+	int miner = 0;
+	while (system[miner]->getCurChain()->getChainSize() != 100) {
+		system[miner++]->preformComputation();
+		if (miner == 100) miner = 0;
+	}
 }
 
 void Example(std::ofstream& logFile) {
@@ -169,57 +169,67 @@ void Example(std::ofstream& logFile) {
 	system.setToPoisson();
 	system.setAvgDelay(2);
 	system.setLog(logFile);
-	const int MINERS = 500;
-	const int BLOCKS = 1000;
-	const int MINING_DIFFICULTY = miningDifficulty(MINERS);
+	const int MINERS = 100;
+	const int BLOCKS = 100;
+	//const int MINING_DIFFICULTY = miningDifficulty(MINERS);
 
 	// The base peer class tracks number of messages sent by a(1) peer. To calculate the total number of messages that where in the system we need
 	//      to add up each peers indivudal message count (example of looping thouth the Network class)
 
 	system.initNetwork(MINERS); // Initialize the system (create it) with 100 peers given the above settings
 
-	srand(time(nullptr));
+	//srand(time(nullptr));
 
-	int mined = 0;
+	const clock_t begin_time = clock();
 
-	while (mined != BLOCKS) {
-		for (int i = 0; i < system.size(); i++) {
-			system[i]->preformComputation();
-		}
-		unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-		std::default_random_engine generator (seed);
-		std::uniform_int_distribution<int> distribution(0, MINERS - 1);
-		int selected_miner = distribution(generator);
+	startMiners(system);
 
-		if (rand() % MINING_DIFFICULTY == 1) {
-			system[selected_miner]->mineNext();
-			++mined;
-		}
-	}
+	const clock_t end_time = clock();
+
+	const clock_t time_taken = end_time - begin_time;
+
+	std::cout << "\n*********************************************\n\tAll miners have finished!\nTotal time taken:" << time_taken / 60 << " minutes.\n";
+	std::cout << "\t Throughput: " << (time_taken / 60) / BLOCKS << " blocks per minute.\n";
+
 	bool match = false;
-	
-	Blockchain* t1 = system[44]->getCurChain();
-	Blockchain* t2 = system[87]->getCurChain();
-	for (int i = 0; i < BLOCKS; ++i) {
-		Block b1 = t1->getBlockAt(i);
-		Block b2 = t2->getBlockAt(i);
 
-		std::string h1 = b1.getHash();
-		std::string h2 = b2.getHash();
+	std::vector<std::pair<int, int>> forks;
 
-		std::string p1 = b1.getPreviousHash();
-		std::string p2 = b2.getPreviousHash();
+	for (int i = 0; i < MINERS; ++i) {
+		for (int j = i + 1; j < MINERS; ++j) {
+			if (j >= i) continue;
+			Blockchain* t1 = system[i]->getCurChain();
+			Blockchain* t2 = system[j]->getCurChain();
+			for (int b = 0; b < BLOCKS; ++b) {
+				Block b1 = t1->getBlockAt(b);
+				Block b2 = t2->getBlockAt(b);
 
-		int i1 = b1.getIndex();
-		int i2 = b2.getIndex();
+				std::string h1 = b1.getHash();
+				std::string h2 = b2.getHash();
 
-		std::set<std::string> m1 = b1.getPublishers();
-		std::set<std::string> m2 = b2.getPublishers();
+				std::string p1 = b1.getPreviousHash();
+				std::string p2 = b2.getPreviousHash();
 
-		if (h1 != h2 || p1 != p2 || i1 != i2 || m1 != m2) break;
-		else match = true;
+				int i1 = b1.getIndex();
+				int i2 = b2.getIndex();
+
+				std::set<std::string> m1 = b1.getPublishers();
+				std::set<std::string> m2 = b2.getPublishers();
+
+				if (h1 != h2 || p1 != p2 || i1 != i2 || m1 != m2) forks.push_back(std::pair<int, int>(i, j));
+				else match = true;
+			}
+		}
 	}
+	
 	if (match) std::cerr << "\n*******************************\n\tSUCCESS - Blockchains match!\n";
+	else {
+		std::cerr << "\n*******************************\n\tERROR - Forks found!\n";
+		for (int i = 0; i < forks.size(); ++i) {
+			std::cerr << "(" << forks[i].first << ", " << forks[i].second << ")\n";
+		}
+	}
+	
 }
 
 void bitcoin(std::ofstream& out, int avgDelay) {

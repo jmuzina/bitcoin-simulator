@@ -42,4 +42,30 @@ struct BitcoinMessage {
     }
 };
 
+struct splitHash {
+    long nonce;
+    std::string hash;
+
+    splitHash() {
+        hash = "";
+        nonce = -1;
+    }
+
+    splitHash(long newNonce, std::string newHash) {
+        nonce = newNonce;
+        hash = newHash;
+    }
+
+    splitHash(const splitHash& copy) {
+        nonce = copy.nonce;
+        hash = copy.hash;
+    }
+
+    splitHash& operator=(const splitHash& rhs) {
+        nonce = rhs.nonce;
+        hash = rhs.hash;
+        return *this;
+    }
+};
+
 #endif 
