@@ -158,19 +158,28 @@ int main(int argc, const char* argv[]) {
 
 void startMiners(ByzantineNetwork<BitcoinMessage, BitcoinMiner> &system) {
 	int miner = 0;
-	while (system[miner]->getCurChain()->getChainSize() != 100) {
-		system[miner++]->preformComputation();
+	int completed = 0;
+	while (completed != 100) {
+		if (system[miner]->getCurChain()->getChainSize() != 100)
+			system[miner++]->preformComputation();
+		else {
+			++miner;
+			++completed;
+		}
 		if (miner == 100) miner = 0;
 	}
 }
 
 void Example(std::ofstream& logFile) {
 	ByzantineNetwork<BitcoinMessage, BitcoinMiner> system;
-	system.setToPoisson();
-	system.setAvgDelay(2);
+	//system.setToPoisson();
+	system.setAvgDelay(8);
+	//system.setMinDelay(10);
+	//system.setMaxDelay(50);
 	system.setLog(logFile);
 	const int MINERS = 100;
 	const int BLOCKS = 100;
+	const bool PRINT_INCONSISTENCIES = false;
 
 	system.initNetwork(MINERS); // Initialize the system (create it) with 100 peers given the above settings
 
@@ -183,7 +192,9 @@ void Example(std::ofstream& logFile) {
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time-begin_time);
 
 	std::cout << "\n*********************************************\n\tAll miners have finished!\nTotal time taken: " << static_cast<float>(duration.count()) / 1000.0 << " seconds.\n";
+	logFile << "\n*********************************************\n\tAll miners have finished!\nTotal time taken: " << static_cast<float>(duration.count()) / 1000.0 << " seconds.\n";
 	std::cout << "\t Throughput: " << BLOCKS / (static_cast<float>(duration.count()) / 1000.0) << " blocks per second.\n";
+	logFile << "\t Throughput: " << BLOCKS / (static_cast<float>(duration.count()) / 1000.0) << " blocks per second.\n";
 
 	bool match = true;
 
@@ -205,25 +216,27 @@ void Example(std::ofstream& logFile) {
 				int i1 = b1.getIndex();
 				int i2 = b2.getIndex();
 
-				std::set<std::string> m1 = b1.getPublishers();
-				std::set<std::string> m2 = b2.getPublishers();
-
-				if (h1 != h2 || p1 != p2 || i1 != i2 || m1 != m2) {
-					std::cerr << "CHAIN ERROR - MINERS " << i << " & " << j << "\n";
-					std::cerr << "BLOCK " << b << "\n";
-					std::cerr << "Hashes: " << h1 << " | " << h2 << "\n";
-					std::cerr << "Prev hashes: " << p1 << " | " << p2 << "\n";
-					std::cerr << "Indexes: " << i1 << " | " << i2 << "\n";
-					std::cerr << "Solving miners: " << *m1.begin() << " | " << *m2.begin() << "\n";
+				if (h1 != h2 || p1 != p2 || i1 != i2) {
+					if (PRINT_INCONSISTENCIES) {
+						std::cerr << "CHAIN ERROR - MINERS " << i << " & " << j << "\n";
+						std::cerr << "BLOCK " << b << "\n";
+						std::cerr << "Hashes: " << h1 << " | " << h2 << "\n";
+						std::cerr << "Prev hashes: " << p1 << " | " << p2 << "\n";
+						std::cerr << "Indexes: " << i1 << " | " << i2 << "\n";
+					}
 					match = false;
 				}
 			}
 		}
 	}
 	
-	if (match) std::cerr << "\n*******************************\n\tSUCCESS - All miners have identical blockchains!\n";
+	if (match) {
+		std::cerr << "\n*******************************\n\tSUCCESS - All miners have identical blockchains!\n";
+		logFile << "\n*******************************\n\tSUCCESS - All miners have identical blockchains!\n";
+	}
 	else {
 		std::cerr << "\n****************************************************\n\tERROR - Forks found!\n";
+		logFile << "\n****************************************************\n\tERROR - Forks found!\n";
 	}
 	
 }
