@@ -183,7 +183,7 @@ void Example(std::ofstream& logFile) {
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time-begin_time);
 
 	std::cout << "\n*********************************************\n\tAll miners have finished!\nTotal time taken: " << static_cast<float>(duration.count()) / 1000.0 << " seconds.\n";
-	std::cout << "\t Throughput: " << (static_cast<float>(duration.count()) / 1000.0) / BLOCKS << " blocks per second.\n";
+	std::cout << "\t Throughput: " << BLOCKS / (static_cast<float>(duration.count()) / 1000.0) << " blocks per second.\n";
 
 	bool match = true;
 
