@@ -171,14 +171,8 @@ void Example(std::ofstream& logFile) {
 	system.setLog(logFile);
 	const int MINERS = 100;
 	const int BLOCKS = 100;
-	//const int MINING_DIFFICULTY = miningDifficulty(MINERS);
-
-	// The base peer class tracks number of messages sent by a(1) peer. To calculate the total number of messages that where in the system we need
-	//      to add up each peers indivudal message count (example of looping thouth the Network class)
 
 	system.initNetwork(MINERS); // Initialize the system (create it) with 100 peers given the above settings
-
-	//srand(time(nullptr));
 
 	auto begin_time = std::chrono::high_resolution_clock::now();
 
@@ -230,7 +224,7 @@ void Example(std::ofstream& logFile) {
 		}
 	}
 	
-	if (match) std::cerr << "\n*******************************\n\tSUCCESS - Blockchains match!\n";
+	if (match) std::cerr << "\n*******************************\n\tSUCCESS - All miners have identical blockchains!\n";
 	else {
 		std::cerr << "\n****************************************************\n\tERROR - Forks found!\n";
 		for (int i = 0; i < forks.size(); ++i) {
