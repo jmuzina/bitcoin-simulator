@@ -187,8 +187,6 @@ void Example(std::ofstream& logFile) {
 
 	bool match = true;
 
-	std::vector<std::pair<int, int>> forks;
-
 	for (int i = 0; i < MINERS; ++i) {
 		for (int j = i + 1; j < MINERS; ++j) {
 			if (i >= j) continue;
@@ -211,7 +209,6 @@ void Example(std::ofstream& logFile) {
 				std::set<std::string> m2 = b2.getPublishers();
 
 				if (h1 != h2 || p1 != p2 || i1 != i2 || m1 != m2) {
-					forks.push_back(std::pair<int, int>(i, j));
 					std::cerr << "CHAIN ERROR - MINERS " << i << " & " << j << "\n";
 					std::cerr << "BLOCK " << b << "\n";
 					std::cerr << "Hashes: " << h1 << " | " << h2 << "\n";
@@ -227,9 +224,6 @@ void Example(std::ofstream& logFile) {
 	if (match) std::cerr << "\n*******************************\n\tSUCCESS - All miners have identical blockchains!\n";
 	else {
 		std::cerr << "\n****************************************************\n\tERROR - Forks found!\n";
-		for (int i = 0; i < forks.size(); ++i) {
-			std::cerr << "(" << forks[i].first << ", " << forks[i].second << ")\n";
-		}
 	}
 	
 }
