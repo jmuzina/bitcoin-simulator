@@ -42,14 +42,14 @@ struct BitcoinMessage {
     }
 };
 
-struct splitHash {
-    long nonce;
-    std::string hash;
-
+class splitHash {
+public:
     splitHash() {
         hash = "";
         nonce = -1;
     }
+
+    splitHash(std::string);
 
     splitHash(long newNonce, std::string newHash) {
         nonce = newNonce;
@@ -66,6 +66,14 @@ struct splitHash {
         hash = rhs.hash;
         return *this;
     }
+
+    long        getNonce    ()                      const { return nonce; };
+    std::string getHash     ()                      const { return hash; };
+    void        setNonce    (long newNonce)               { nonce = newNonce; };
+    void        setHash     (std::string newHash)         { hash = newHash; };
+private:
+    long nonce;
+    std::string hash;
 };
 
 #endif 

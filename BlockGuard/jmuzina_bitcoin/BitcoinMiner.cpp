@@ -2,17 +2,20 @@
 #include <iostream>     
 
 // Returns parsed blockhash and solution nonce
-splitHash getSplit(std::string fullHash) {
-    if (fullHash.substr(0, 11) == "genesisHash") return splitHash(-1, "genesisHash");
-    
-    const int fullLen = fullHash.length();
-    const int noncePos = fullHash.find_first_of(":") + 1;
-    const int nonceLen = fullLen - noncePos;
-    const int hashLen = fullLen - nonceLen - 1;
-    const std::string hash = fullHash.substr(0, hashLen);
+splitHash::splitHash(std::string fullHash) {
+    if (fullHash.substr(0, 11) == "genesisHash") {
+        hash = "genesisHash";
+        nonce = -1;
+    }
+    else {
+        const int fullLen = fullHash.length();
+        const int noncePos = fullHash.find_first_of(":") + 1;
+        const int nonceLen = fullLen - noncePos;
+        const int hashLen = fullLen - nonceLen - 1;
 
-    const int nonce = std::stol(fullHash.substr(noncePos, nonceLen));
-    return splitHash(nonce, hash);
+        hash = fullHash.substr(0, hashLen);
+        nonce = std::stol(fullHash.substr(noncePos, nonceLen));
+    }
 }
 
 BitcoinMiner::BitcoinMiner(const std::string id) {
@@ -26,7 +29,7 @@ BitcoinMiner::BitcoinMiner(const std::string id) {
 // and an incremented nonce as input.
 std::string BitcoinMiner::getSHA(long nonce) const {
     const int curLength = curChain->getChainSize();
-    const std::string prevHash = (curLength > 1 ? getSplit(curChain->getBlockAt(curLength - 1).getHash()).hash : "");
+    const std::string prevHash = (curLength > 1 ? splitHash(curChain->getBlockAt(curLength - 1).getHash()).getHash() : "");
     const std::string peer_id = _id;
 
     std::string hash_hex_str;
@@ -65,7 +68,7 @@ void BitcoinMiner::mineNext(const std::string newHash) {
     const int curLength = curChain->getChainSize();
     std::cerr << "---------------------------\nBlock " << curLength << " has been mined by " << _id << "\n";
 
-    const std::string prevHash = (curLength > 1 ? getSplit(curChain->getBlockAt(curLength - 1).getHash()).hash : "");
+    const std::string prevHash = (curLength > 1 ? splitHash(curChain->getBlockAt(curLength - 1).getHash()).getHash() : "");
     std::cerr << prevHash << " -> " << newHash << "\n";
     curChain->createBlock(curLength, prevHash, newHash + ":" + std::to_string(lastNonce), {_id}); // add to local blockchain
     transmitBlock(); // send to other miners
@@ -99,7 +102,7 @@ bool BitcoinMiner::readBlock(const bool outdatedCheck) {
     if (longestChainAt != -1) {
         const Block topBlock = _inStream[longestChainAt].getMessage().block;
         const BitcoinMiner* topNeighbor;
-        std::string lastHash = getSplit(curChain->getBlockAt(curChain->getChainSize() - 1).getHash()).hash;
+        std::string lastHash = splitHash(curChain->getBlockAt(curChain->getChainSize() - 1).getHash()).getHash();
         for (std::map<std::string, Peer<BitcoinMessage> *>::iterator it = _neighbors.begin(); it != _neighbors.end(); ++it) {
             BitcoinMiner* neighbor = static_cast<BitcoinMiner*>(it->second);
             std::string peerId = *(topBlock.getPublishers()).begin();
@@ -121,17 +124,17 @@ bool BitcoinMiner::readBlock(const bool outdatedCheck) {
 
             std::string neighborId = *(neighborChain->getBlockAt(curPos).getPublishers().begin());
 
-            const splitHash curSplit = (curPos > 0 ? getSplit(neighborChain->getBlockAt(curPos).getHash()) : splitHash(-1, "genesisHash"));
-            const splitHash prevSplit = (prevPos > 0 ? getSplit(neighborChain->getBlockAt(prevPos).getHash()) : splitHash());
+            const splitHash curSplit = (curPos > 0 ? splitHash(neighborChain->getBlockAt(curPos).getHash()) : splitHash(-1, "genesisHash"));
+            const splitHash prevSplit = (prevPos > 0 ? splitHash(neighborChain->getBlockAt(prevPos).getHash()) : splitHash());
             
             std::string hash_result;
 
-            if (curPos == 0 || prevSplit.hash == "") hash_result = "genesisHash";
-            else picosha2::hash256_hex_string(prevSplit.hash + neighborId + std::to_string(curSplit.nonce), hash_result);
+            if (curPos == 0 || prevSplit.getHash() == "") hash_result = "genesisHash";
+            else picosha2::hash256_hex_string(prevSplit.getHash() + neighborId + std::to_string(curSplit.getNonce()), hash_result);
 
-            if (curSplit.hash != hash_result) break;
+            if (curSplit.getHash() != hash_result) break;
             else {
-                curChain->createBlock(curChain->getChainSize(), prevSplit.hash, curSplit.hash, {neighborId});
+                curChain->createBlock(curChain->getChainSize(), prevSplit.getHash(), curSplit.getHash(), {neighborId});
                 --blocksBehind;
             }
         }

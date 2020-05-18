@@ -180,32 +180,32 @@ void Example(std::ofstream& logFile) {
 
 	//srand(time(nullptr));
 
-	const clock_t begin_time = clock();
+	auto begin_time = std::chrono::high_resolution_clock::now();
 
 	startMiners(system);
 
-	const clock_t end_time = clock();
+	auto end_time = std::chrono::high_resolution_clock::now();
 
-	const clock_t time_taken = end_time - begin_time;
+	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time-begin_time);
 
-	std::cout << "\n*********************************************\n\tAll miners have finished!\nTotal time taken:" << time_taken / 60 << " minutes.\n";
-	std::cout << "\t Throughput: " << (time_taken / 60) / BLOCKS << " blocks per minute.\n";
+	std::cout << "\n*********************************************\n\tAll miners have finished!\nTotal time taken: " << static_cast<float>(duration.count()) / 1000.0 << " seconds.\n";
+	std::cout << "\t Throughput: " << (static_cast<float>(duration.count()) / 1000.0) / BLOCKS << " blocks per second.\n";
 
-	bool match = false;
+	bool match = true;
 
 	std::vector<std::pair<int, int>> forks;
 
 	for (int i = 0; i < MINERS; ++i) {
 		for (int j = i + 1; j < MINERS; ++j) {
-			if (j >= i) continue;
+			if (i >= j) continue;
 			Blockchain* t1 = system[i]->getCurChain();
 			Blockchain* t2 = system[j]->getCurChain();
 			for (int b = 0; b < BLOCKS; ++b) {
 				Block b1 = t1->getBlockAt(b);
 				Block b2 = t2->getBlockAt(b);
 
-				std::string h1 = b1.getHash();
-				std::string h2 = b2.getHash();
+				std::string h1 = splitHash(b1.getHash()).getHash();
+				std::string h2 = splitHash(b2.getHash()).getHash();
 
 				std::string p1 = b1.getPreviousHash();
 				std::string p2 = b2.getPreviousHash();
@@ -216,15 +216,23 @@ void Example(std::ofstream& logFile) {
 				std::set<std::string> m1 = b1.getPublishers();
 				std::set<std::string> m2 = b2.getPublishers();
 
-				if (h1 != h2 || p1 != p2 || i1 != i2 || m1 != m2) forks.push_back(std::pair<int, int>(i, j));
-				else match = true;
+				if (h1 != h2 || p1 != p2 || i1 != i2 || m1 != m2) {
+					forks.push_back(std::pair<int, int>(i, j));
+					std::cerr << "CHAIN ERROR - MINERS " << i << " & " << j << "\n";
+					std::cerr << "BLOCK " << b << "\n";
+					std::cerr << "Hashes: " << h1 << " | " << h2 << "\n";
+					std::cerr << "Prev hashes: " << p1 << " | " << p2 << "\n";
+					std::cerr << "Indexes: " << i1 << " | " << i2 << "\n";
+					std::cerr << "Solving miners: " << *m1.begin() << " | " << *m2.begin() << "\n";
+					match = false;
+				}
 			}
 		}
 	}
 	
 	if (match) std::cerr << "\n*******************************\n\tSUCCESS - Blockchains match!\n";
 	else {
-		std::cerr << "\n*******************************\n\tERROR - Forks found!\n";
+		std::cerr << "\n****************************************************\n\tERROR - Forks found!\n";
 		for (int i = 0; i < forks.size(); ++i) {
 			std::cerr << "(" << forks[i].first << ", " << forks[i].second << ")\n";
 		}
