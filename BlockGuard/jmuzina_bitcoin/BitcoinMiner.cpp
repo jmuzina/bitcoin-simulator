@@ -40,8 +40,8 @@ void BitcoinMiner::preformComputation() {
     readBlock(false);
     // continues executing until we've mined an arbitrary number of blocks
     if (curChain->getChainSize() != 100) {
-        std::string hash = (curChain->getChainSize() > 1 ? getSHA(lastNonce) : "genesisHash");
-        std::string challengeBits = hash.substr(0, 4); // Miner's attempted Proof of Work solution
+        std::string hash = (curChain->getChainSize() > 1 ? getSHA(lastNonce) : "genesisHash"); // Miner's attempted Proof of Work solution
+        std::string challengeBits = hash.substr(0, 4); // First four bits of attempted solution
         const bool outdated = readBlock(true); // Checks that nobody has beaten the miner since we last checked
         // Valid PoW solution and no other miner has solved the problem - send block to other miners
         if ((challengeBits == "0000" || hash == "genesisHash") && !outdated) { 
