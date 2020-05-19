@@ -18,7 +18,7 @@ splitHash::splitHash(std::string fullHash) {
         const int hashLen = fullLen - nonceLen - 1;
 
         hash = fullHash.substr(0, hashLen);
-        nonce = std::stol(fullHash.substr(noncePos, nonceLen));
+        nonce = std::stoll(fullHash.substr(noncePos, nonceLen));
     }
 }
 
@@ -31,7 +31,7 @@ BitcoinMiner::BitcoinMiner(const std::string id) {
 // Deterministically returns a randomly outputed string,
 // using the previous block's hash, current miner ID,
 // and an incremented nonce as input.
-std::string BitcoinMiner::getSHA(long nonce) const {
+std::string BitcoinMiner::getSHA(long long nonce) const {
     const int curLength = curChain->getChainSize();
     const std::string prevHash = (curLength > 1 ? splitHash(curChain->getBlockAt(curLength - 1).getHash()).getHash() : "");
     std::string hash_hex_str;

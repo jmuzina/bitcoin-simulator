@@ -67,12 +67,12 @@ public:
         return *this;
     }
 
-    long        getNonce    ()                      const { return nonce; };
+    long long   getNonce    ()                      const { return nonce; };
     std::string getHash     ()                      const { return hash; };
-    void        setNonce    (long newNonce)               { nonce = newNonce; };
+    void        setNonce    (long long newNonce)          { nonce = newNonce; };
     void        setHash     (std::string newHash)         { hash = newHash; };
 private:
-    long nonce;
+    long long nonce;
     std::string hash;
 };
 

@@ -22,16 +22,16 @@ public:
     bool                            readBlock               ();
     void                            transmitBlock           ();
     void                            setCurChain             (const Blockchain& setFrom) { *curChain = setFrom; };
-    void                            setLastNonce            (long nonce)                { lastNonce = nonce; };
+    void                            setLastNonce            (long long nonce)                { lastNonce = nonce; };
     long                            getLastNonce            () const                    { return lastNonce; };
     Blockchain*                     getCurChain             () const                    { return curChain; };
     std::string                     getId                   () const                    { return peerId; };
-    std::string                     getSHA                  (long) const;
+    std::string                     getSHA                  (long long) const;
 
 private:
     std::string                     peerId;
     std::string                     foundHash;
-    long                            lastNonce;
+    long long                       lastNonce;
 };
 
 #endif 
