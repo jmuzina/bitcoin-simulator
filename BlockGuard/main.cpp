@@ -160,7 +160,7 @@ void startMiners(ByzantineNetwork<BitcoinMessage, BitcoinMiner> &system) {
 	int miner = 0;
 	int completed = 0;
 	while (completed != 100) {
-		if (system[miner]->getCurChain()->getChainSize() != 50)
+		if (system[miner]->getCurChain()->getChainSize() != 100)
 			system[miner++]->preformComputation();
 		else {
 			++miner;
@@ -171,29 +171,26 @@ void startMiners(ByzantineNetwork<BitcoinMessage, BitcoinMiner> &system) {
 }
 
 void Example(std::ofstream& logFile) {
-	const float TRIALS = 15.0;
-	for (int delay = 1; delay <= 200; delay += 2) {
+	const float TRIALS = 10.0;
+	for (int delay = 4; delay <= 100; ++delay) {
 		float totalThroughput = 0.0;
-		std::cout << "---Running " << TRIALS << " trials with avg delay = " << delay << "--\n";
+		std::cout << "---Running " << TRIALS << " trials with avg delay = " << delay << "---\n";
 		for (int trial = 1; trial <= TRIALS; ++trial) {
-			ByzantineNetwork<BitcoinMessage, BitcoinMiner> system;
-			//system.setToPoisson();
-			system.setAvgDelay(delay);
-			//system.setMinDelay(10);
-			//system.setMaxDelay(50);
-			system.setLog(logFile);
 			const int MINERS = 100;
-			const int BLOCKS = 50;
+			const int BLOCKS = 100;
 			const bool PRINT_INCONSISTENCIES = false;
 
-			system.initNetwork(MINERS); // Initialize the system (create it) with 100 peers given the above settings
-
+			ByzantineNetwork<BitcoinMessage, BitcoinMiner> system;
+			system.setLog(logFile);
+			system.setToRandom();
+			system.setMinDelay(delay - 3);
+			system.setAvgDelay(delay);
+			system.setMaxDelay(delay + 3);
+			system.initNetwork(MINERS);
+			
 			auto begin_time = std::chrono::high_resolution_clock::now();
-
 			startMiners(system);
-
 			auto end_time = std::chrono::high_resolution_clock::now();
-
 			auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time-begin_time);
 
 			//std::cout << "\n*********************************************\n\tAll miners have finished!\nTotal time taken: " << static_cast<float>(duration.count()) / 1000.0 << " seconds.\n";

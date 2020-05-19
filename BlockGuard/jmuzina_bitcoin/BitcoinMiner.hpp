@@ -19,7 +19,7 @@ public:
     void                            mineNext                (const std::string);
     void                            makeRequest             () override;
     void                            preformComputation      () override;
-    bool                            readBlock               (const bool);
+    bool                            readBlock               ();
     void                            transmitBlock           ();
     void                            setCurChain             (const Blockchain& setFrom) { *curChain = setFrom; };
     void                            setLastNonce            (long nonce)                { lastNonce = nonce; };
