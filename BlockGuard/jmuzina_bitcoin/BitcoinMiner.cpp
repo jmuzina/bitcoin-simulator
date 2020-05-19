@@ -16,9 +16,15 @@ splitHash::splitHash(std::string fullHash) {
         const int noncePos = fullHash.find_first_of(":") + 1;
         const int nonceLen = fullLen - noncePos;
         const int hashLen = fullLen - nonceLen - 1;
-
-        hash = fullHash.substr(0, hashLen);
-        nonce = std::stoll(fullHash.substr(noncePos, nonceLen));
+        if (noncePos < 64) {
+            hash = fullHash;
+            nonce = -1;
+        }
+        else {
+            hash = fullHash.substr(0, hashLen);
+            std::string nonceStr = fullHash.substr(noncePos, nonceLen);
+            nonce = std::stoll(nonceStr);
+        }
     }
 }
 
@@ -47,9 +53,9 @@ void BitcoinMiner::preformComputation() {
     // continues executing until we've mined an arbitrary number of blocks
     if (curChain->getChainSize() != 100) {
         std::string hash = (curChain->getChainSize() > 1 ? getSHA(lastNonce) : "genesisHash"); // Miner's attempted Proof of Work solution
-        std::string challengeBits = hash.substr(0, 3); // First four bits of attempted solution
+        std::string challengeBits = hash.substr(0, 2); // Arbitrary first few bits of attempted solution
         // Valid PoW solution - send block to other miners
-        if ((challengeBits == "000" || hash == "genesisHash")) { 
+        if ((challengeBits == "00" || hash == "genesisHash")) { 
             mineNext(hash);
             setLastNonce(0);
         }
@@ -93,6 +99,7 @@ bool BitcoinMiner::readBlock() {
     // If the longest chain received is longer than the peer's current chain,
     // peer will verify each block that it is missing and add them to its chain.
     if (longestChainAt != -1) {
+        setLastNonce(0); // reset nonce
         const Block topBlock = _inStream[longestChainAt].getMessage().block;
         const BitcoinMiner* topNeighbor;
         std::string lastHash = splitHash(curChain->getBlockAt(curChain->getChainSize() - 1).getHash()).getHash();
@@ -145,7 +152,8 @@ bool BitcoinMiner::readBlock() {
         
                 for (int i = 1; i <= forkPos; ++i) {
                     Block copyBlock = neighborChain->getBlockAt(i);
-                    validated->createBlock(copyBlock.getIndex(), splitHash(copyBlock.getPreviousHash()).getHash(), splitHash(copyBlock.getHash()).getHash(), {*copyBlock.getPublishers().begin()});
+                    splitHash s = splitHash(copyBlock.getHash());
+                    validated->createBlock(copyBlock.getIndex(), splitHash(copyBlock.getPreviousHash()).getHash(), s.getHash() + ":" + std::to_string(s.getNonce()), {*copyBlock.getPublishers().begin()});
                 }
                 
                 // Set local chain to validated chain

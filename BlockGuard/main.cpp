@@ -171,8 +171,8 @@ void startMiners(ByzantineNetwork<BitcoinMessage, BitcoinMiner> &system) {
 }
 
 void Example(std::ofstream& logFile) {
-	const float TRIALS = 10.0;
-	for (int delay = 4; delay <= 100; ++delay) {
+	const float TRIALS = 100.0;
+	for (int delay = 2; delay <= 50; ++delay) {
 		float totalThroughput = 0.0;
 		std::cout << "---Running " << TRIALS << " trials with avg delay = " << delay << "---\n";
 		for (int trial = 1; trial <= TRIALS; ++trial) {
@@ -183,9 +183,9 @@ void Example(std::ofstream& logFile) {
 			ByzantineNetwork<BitcoinMessage, BitcoinMiner> system;
 			system.setLog(logFile);
 			system.setToRandom();
-			system.setMinDelay(delay - 3);
+			system.setMinDelay(delay - 1);
 			system.setAvgDelay(delay);
-			system.setMaxDelay(delay + 3);
+			system.setMaxDelay(delay + 1);
 			system.initNetwork(MINERS);
 			
 			auto begin_time = std::chrono::high_resolution_clock::now();
