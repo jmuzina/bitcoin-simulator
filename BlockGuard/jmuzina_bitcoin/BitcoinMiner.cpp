@@ -61,9 +61,9 @@ void BitcoinMiner::preformComputation() {
     // continues executing until we've mined an arbitrary number of blocks
     if (curChain->getChainSize() != 100) {
         std::string hash = (curChain->getChainSize() > 1 ? getSHA(lastNonce) : "genesisHash"); // Miner's attempted Proof of Work solution
-        std::string challengeBits = hash.substr(0, 2); // Arbitrary first few bits of attempted solution
+        std::string challengeBits = hash.substr(0, 1); // Arbitrary first few bits of attempted solution
         // Valid PoW solution - send block to other miners
-        if ((challengeBits == "00" || hash == "genesisHash")) { 
+        if ((challengeBits == "0" || hash == "genesisHash")) { 
             mineNext(hash);
             setLastNonce(0);
         }
@@ -85,7 +85,7 @@ void BitcoinMiner::mineNext(const std::string newHash) {
         const std::string prevHash = (curLength > 1 ? splitHash(curChain->getBlockAt(curLength - 1).getHash()).getHash() : "-1_-1");
 
         curChain->createBlock(curLength, prevHash, newHash + ":" + std::to_string(solution), {_id}); // add to local blockchain
-        std::cout << "Block " << curLength << " has been mined by " << _id << ":\t" << prevHash << " -> " << newHash << "\n";
+        //std::cout << "Block " << curLength << " has been mined by " << _id << ":\t" << prevHash << " -> " << newHash << "\n";
 
         transmitBlock(); // send to other miners
     }
@@ -94,7 +94,7 @@ void BitcoinMiner::mineNext(const std::string newHash) {
 void BitcoinMiner::catchUpAndVerify(Blockchain* overtaker) {
     const int OVERTAKER_LENGTH = overtaker->getChainSize();
     int blocksBehind = OVERTAKER_LENGTH - curChain->getChainSize();
-    int curPos = OVERTAKER_LENGTH - blocksBehind;
+    int curPos = OVERTAKER_LENGTH - blocksBehind - 1;
     int prevPos = curPos - 1;
 
     if (blocksBehind > 0) {
@@ -103,7 +103,8 @@ void BitcoinMiner::catchUpAndVerify(Blockchain* overtaker) {
     }
 
     while (blocksBehind > 0) {
-        int curPos = OVERTAKER_LENGTH - blocksBehind;
+        int curPos = OVERTAKER_LENGTH - blocksBehind - 1;
+        if (curPos == 0) ++curPos;
         int prevPos = curPos - 1;
         std::string minerId = *(overtaker->getBlockAt(curPos).getPublishers().begin());
 
@@ -158,7 +159,6 @@ void BitcoinMiner::catchUpAndVerify(Blockchain* overtaker) {
                 if ((verifySplit.getHash() == verifyHash) && (prevVerifyHash == overtaker->getBlockAt(verifyPos).getPreviousHash().substr(0, 64))) {
                     curChain->createBlock(curChain->getChainSize(), prevVerifyHash, verifySplit.getHash() + ":" + std::to_string(verifySplit.getNonce()), {verifyId});
                     //std::cerr << "\n" << _id << "(A) verified block " << curChain->getChainSize() - 1 << "\t" << prevVerifyHash << " -> " << verifyHash << "\n";
-                    //std::cerr << "nonce in fork resolution is \t" << std::to_string(verifySplit.getNonce()) << "[" << verifySplit.getHash() << "]\n";
                     --blocksBehind;
                 }
                 else {
@@ -202,7 +202,7 @@ void BitcoinMiner::readBlock() {
             longestChainAt = i;
             longestChainLength = RECEIVED_LENGTH;
         }
-        else if (RECEIVED_LENGTH == LOCAL_SIZE && senderId != _id) {
+        else if (RECEIVED_LENGTH == LOCAL_SIZE && senderId != _id && (findMiner(senderId)->getCurChain()->getBlockAt(findMiner(senderId)->getCurChain()->getChainSize() - 1).getHash() != curChain->getBlockAt(curChain->getChainSize() - 1).getHash())) {
             competitors.push_back(findMiner(senderId));
         }
     }
@@ -224,18 +224,6 @@ void BitcoinMiner::readBlock() {
         //std::cerr << _id << " catching up from " << LOCAL_SIZE - 1 << " to " << longestCompetitorSize - 1<< "(" << competitors.at(longestCompetitorNum)->id() << ")\n";
         Blockchain* longestCompetitorChain = competitors.at(longestCompetitorNum)->getCurChain();
         catchUpAndVerify(longestCompetitorChain);
-        /*
-        for (int i = 0; i < longestCompetitorChain->getChainSize(); ++i) {
-            Block local = curChain->getBlockAt(i);
-            Block longest = longestCompetitorChain->getBlockAt(i);
-
-            if (local.getPreviousHash() != longest.getPreviousHash()) std::cerr << "PREV MISMATCH(" << i << ")\t" << local.getPreviousHash() << "\t" << longest.getPreviousHash() << "\n";
-            if (local.getHash() != longest.getHash()) {
-                std::cerr << "HASH MISMATCH(" << i << ")\t" << local.getHash() << "\t" << longest.getHash() << "\n";
-            }
-            if (local.getIndex() != longest.getIndex()) std::cerr << "INDEX MISMATCH\t" << local.getIndex() << "\t" << longest.getIndex() << "\n";
-        }
-        */
         competitors.clear();
     }
     // If the longest chain received is longer than the peer's current chain,

@@ -160,29 +160,35 @@ int roundsNeeded(ByzantineNetwork<BitcoinMessage, BitcoinMiner> &system) {
 	int miner = 0;
 	int completed = 0;
 	int rounds = 0;
-	while (completed != 100) {
-		// If a miner doesn't have 100 blocks, they go through a round
-		if (!system[miner]->getExperimentOver()) {
+	system[0]->preformComputation(); // mine genesis block
+	while (completed != system.size()) {
+		if ((system[miner]->getCurChain()->getChainSize() == 1) && miner != 0) system[miner]->readBlock();
+		else if (!system[miner]->getExperimentOver()) {
 			system[miner]->preformComputation();
 			++rounds;
 			if (system[miner]->getExperimentOver()) ++completed;
 		}
-		if (miner == 99) miner = 0;
+		if (miner == system.size() - 1) miner = 0;
 		else ++miner;
 	}
 	return rounds;
 }
 
 void Example(std::ofstream& logFile) {
-	const float TRIALS = 5.0;
+	const float TRIALS = 2.0;
+	const int MINERS = 200;
+	const float BLOCKS = 100;
+	const bool PRINT_INCONSISTENCIES = true;
+
+	int deepestFork = 100;
+	int deepestForkDelay = 0;
+
 	for (int delay = 2; delay <= 10; ++delay) {
 		float totalLatency = 0.0;
-		std::cout << "---Running " << TRIALS << " trials with avg delay = " << delay << "---\n";
+		// Maximum allowed fork depth - forks may appear near end of chain, increasing in frequency and depth with delay.
+		const int maxForkPos = (BLOCKS * 0.88) - (5 * (delay - 2)); 
+		std::cout << "---Running " << TRIALS << " trials with avg delay = " << delay << " and fork tolerance = " << maxForkPos << "---\n";
 		for (int trial = 1; trial <= TRIALS; ++trial) {
-			const int MINERS = 100;
-			const float BLOCKS = 100.0;
-			const bool PRINT_INCONSISTENCIES = false;
-
 			ByzantineNetwork<BitcoinMessage, BitcoinMiner> system;
 			system.setLog(logFile);
 			system.setToRandom();
@@ -218,11 +224,18 @@ void Example(std::ofstream& logFile) {
 						int i1 = b1.getIndex();
 						int i2 = b2.getIndex();
 
-						if (h1 != h2 || p1 != p2 || i1 != i2) {
+						if (((h1 != h2 || p1 != p2 || i1 != i2)) && (i1 == i2) && (i1 < deepestFork)) {
+							deepestFork = i1;
+							deepestForkDelay = delay;
+						}
+
+						if ((h1 != h2 || p1 != p2 || i1 != i2) && (i1 == i2 && i1 < maxForkPos)) {
+							// There may be forks near the very end of the chain due to not having time to resolve
 							if (PRINT_INCONSISTENCIES) {
-								std::cerr << "Blocks: " << i1 << "\t" << i2 << "\n";
+								std::cerr << "------------\nBlocks: " << i1 << "\t" << i2 << "\n";
 								std::cerr << "Hashes: " << h1 << "\t" << h2 << "\n";
-								std::cerr << "Prev hashes: " << p1 << "\t" << p2 << "\n";
+								std::cerr << "Prevs: " << p1 << "\t" << p2 << "\n";
+								std::cerr << "-------------\n";
 							}
 							match = false;
 						}
@@ -231,18 +244,20 @@ void Example(std::ofstream& logFile) {
 			}
 			
 			if (match) {
-				std::cerr << "\n*******************************\n\tSUCCESS - All miners have identical blockchains!\n";
+				//std::cerr << "\n*******************************\n\tSUCCESS - All miners have identical blockchains!\n";
 				//logFile << "\n*******************************\n\tSUCCESS - All miners have identical blockchains!\n";
 			}
 			else {
-				std::cerr << "\n****************************************************\n\tERROR - Forks found!\n";
-				//logFile << "\n****************************************************\n\tERROR - Forks found!\n";
+				std::cerr << "\n****************************************************\n\tERROR - Deep Forks found!\n";
+				exit(EXIT_FAILURE);
+				//logFile << "\n****************************************************\n\tERROR - Deep Forks found!\n";
 			}
 		}
 		float averageForTrial = totalLatency / TRIALS;
 		std::cout << "Average for delay = " << delay << ":\t" << averageForTrial << "\n";
 		logFile << delay << "\t" <<averageForTrial << "\n";
 	}
+	std::cerr << "Deepest fork was at block " << deepestFork << " with delay = " << deepestForkDelay << "\n";
 }
 
 void bitcoin(std::ofstream& out, int avgDelay) {
