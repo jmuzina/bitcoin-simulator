@@ -17,9 +17,10 @@ public:
                                     BitcoinMiner            (const std::string);
                                     ~BitcoinMiner           () override                 { delete curChain; };
     void                            mineNext                (const std::string);
+    void                            catchUpAndVerify        (Blockchain* overtaker);
     void                            makeRequest             () override;
     void                            preformComputation      () override;
-    bool                            readBlock               ();
+    void                            readBlock               ();
     void                            transmitBlock           ();
     void                            setCurChain             (const Blockchain& setFrom) { *curChain = setFrom; };
     void                            setBeaten               (const bool wasBeaten)      { beaten = wasBeaten; };
@@ -28,6 +29,7 @@ public:
     long long                       getLastNonce            () const                    { return lastNonce; };
     void                            setExperimentOver       (const bool set)            { experimentOver = set; };
     bool                            getExperimentOver       () const                    { return experimentOver; };
+    BitcoinMiner*                   findMiner               (const std::string);
     Blockchain*                     getCurChain             () const                    { return curChain; };
     std::string                     getId                   () const                    { return peerId; };
     std::string                     getSHA                  (long long) const;
@@ -38,6 +40,7 @@ private:
     long long                       lastNonce;
     bool                            experimentOver;
     bool                            beaten;
+    std::vector<BitcoinMiner*>      competitors;
 };
 
 #endif 

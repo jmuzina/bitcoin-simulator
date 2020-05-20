@@ -236,7 +236,7 @@ void Example(std::ofstream& logFile) {
 			}
 			else {
 				std::cerr << "\n****************************************************\n\tERROR - Forks found!\n";
-				logFile << "\n****************************************************\n\tERROR - Forks found!\n";
+				//logFile << "\n****************************************************\n\tERROR - Forks found!\n";
 			}
 		}
 		float averageForTrial = totalLatency / TRIALS;
