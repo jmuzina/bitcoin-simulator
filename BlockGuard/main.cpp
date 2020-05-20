@@ -156,28 +156,31 @@ int main(int argc, const char* argv[]) {
 #include "jmuzina_bitcoin/BitcoinMessage.hpp"
 #include "jmuzina_bitcoin/BitcoinMiner.hpp"
 
-void startMiners(ByzantineNetwork<BitcoinMessage, BitcoinMiner> &system) {
+int roundsNeeded(ByzantineNetwork<BitcoinMessage, BitcoinMiner> &system) {
 	int miner = 0;
 	int completed = 0;
+	int rounds = 0;
 	while (completed != 100) {
-		if (system[miner]->getCurChain()->getChainSize() != 100)
-			system[miner++]->preformComputation();
-		else {
-			++miner;
-			++completed;
+		// If a miner doesn't have 100 blocks, they go through a round
+		if (!system[miner]->getExperimentOver()) {
+			system[miner]->preformComputation();
+			++rounds;
+			if (system[miner]->getExperimentOver()) ++completed;
 		}
-		if (miner == 100) miner = 0;
+		if (miner == 99) miner = 0;
+		else ++miner;
 	}
+	return rounds;
 }
 
 void Example(std::ofstream& logFile) {
-	const float TRIALS = 100.0;
-	for (int delay = 2; delay <= 50; ++delay) {
-		float totalThroughput = 0.0;
+	const float TRIALS = 5.0;
+	for (int delay = 2; delay <= 10; ++delay) {
+		float totalLatency = 0.0;
 		std::cout << "---Running " << TRIALS << " trials with avg delay = " << delay << "---\n";
 		for (int trial = 1; trial <= TRIALS; ++trial) {
 			const int MINERS = 100;
-			const int BLOCKS = 100;
+			const float BLOCKS = 100.0;
 			const bool PRINT_INCONSISTENCIES = false;
 
 			ByzantineNetwork<BitcoinMessage, BitcoinMiner> system;
@@ -188,17 +191,11 @@ void Example(std::ofstream& logFile) {
 			system.setMaxDelay(delay + 1);
 			system.initNetwork(MINERS);
 			
-			auto begin_time = std::chrono::high_resolution_clock::now();
-			startMiners(system);
-			auto end_time = std::chrono::high_resolution_clock::now();
-			auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time-begin_time);
+			const int roundsToComplete = roundsNeeded(system);
 
-			//std::cout << "\n*********************************************\n\tAll miners have finished!\nTotal time taken: " << static_cast<float>(duration.count()) / 1000.0 << " seconds.\n";
-			//logFile << static_cast<float>(duration.count()) / 1000.0 << "\n";
-			float throughput = BLOCKS / (static_cast<float>(duration.count()) / 1000.0);
-			std::cout << "Trial " << trial << ":\t" << throughput << " blocks per second.\n";
-			//logFile << throughput << "\n";
-			totalThroughput += throughput;
+			float latency = BLOCKS / roundsToComplete;
+			std::cout << "Trial " << trial << ":\t" << latency << " blocks per round.\n";
+			totalLatency += latency;
 
 			bool match = true;
 
@@ -207,6 +204,7 @@ void Example(std::ofstream& logFile) {
 					if (i >= j) continue;
 					Blockchain* t1 = system[i]->getCurChain();
 					Blockchain* t2 = system[j]->getCurChain();
+
 					for (int b = 0; b < BLOCKS; ++b) {
 						Block b1 = t1->getBlockAt(b);
 						Block b2 = t2->getBlockAt(b);
@@ -222,11 +220,9 @@ void Example(std::ofstream& logFile) {
 
 						if (h1 != h2 || p1 != p2 || i1 != i2) {
 							if (PRINT_INCONSISTENCIES) {
-								std::cerr << "CHAIN ERROR - MINERS " << i << " & " << j << "\n";
-								std::cerr << "BLOCK " << b << "\n";
-								std::cerr << "Hashes: " << h1 << " | " << h2 << "\n";
-								std::cerr << "Prev hashes: " << p1 << " | " << p2 << "\n";
-								std::cerr << "Indexes: " << i1 << " | " << i2 << "\n";
+								std::cerr << "Blocks: " << i1 << "\t" << i2 << "\n";
+								std::cerr << "Hashes: " << h1 << "\t" << h2 << "\n";
+								std::cerr << "Prev hashes: " << p1 << "\t" << p2 << "\n";
 							}
 							match = false;
 						}
@@ -235,7 +231,7 @@ void Example(std::ofstream& logFile) {
 			}
 			
 			if (match) {
-				//std::cerr << "\n*******************************\n\tSUCCESS - All miners have identical blockchains!\n";
+				std::cerr << "\n*******************************\n\tSUCCESS - All miners have identical blockchains!\n";
 				//logFile << "\n*******************************\n\tSUCCESS - All miners have identical blockchains!\n";
 			}
 			else {
@@ -243,7 +239,7 @@ void Example(std::ofstream& logFile) {
 				logFile << "\n****************************************************\n\tERROR - Forks found!\n";
 			}
 		}
-		float averageForTrial = totalThroughput / TRIALS;
+		float averageForTrial = totalLatency / TRIALS;
 		std::cout << "Average for delay = " << delay << ":\t" << averageForTrial << "\n";
 		logFile << delay << "\t" <<averageForTrial << "\n";
 	}

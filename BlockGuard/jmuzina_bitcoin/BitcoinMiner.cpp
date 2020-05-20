@@ -8,7 +8,7 @@ splitHash::splitHash(std::string fullHash) {
         nonce = -1;
     }
     else if (fullHash.length() == 0) {
-        hash = "";
+        hash = "-1_-1";
         nonce = -1;
     }
     else {
@@ -32,6 +32,7 @@ BitcoinMiner::BitcoinMiner(const std::string id) {
     curChain = new Blockchain(true);
     _id = id;
     lastNonce = 0;
+    experimentOver = false;
 }
 
 // Deterministically returns a randomly outputed string,
@@ -42,6 +43,8 @@ std::string BitcoinMiner::getSHA(long long nonce) const {
     const std::string prevHash = (curLength > 1 ? splitHash(curChain->getBlockAt(curLength - 1).getHash()).getHash() : "");
     std::string hash_hex_str;
     picosha2::hash256_hex_string(prevHash + _id + std::to_string(nonce), hash_hex_str);
+
+    //if (hash_hex_str.substr(0,2) == "00") std::cerr << "HO(" << prevHash << ", " << _id << ", " << std::to_string(nonce) << ") =\t" << hash_hex_str << "\n";
 
     return hash_hex_str;
 }
@@ -63,18 +66,26 @@ void BitcoinMiner::preformComputation() {
         else {
             setLastNonce(lastNonce + 1);
         }
+        if (curChain->getChainSize() == 100) setExperimentOver(true);
     }
+    else setExperimentOver(true);
 }
 
 // Add solved block blockchain
 void BitcoinMiner::mineNext(const std::string newHash) {
-    const int curLength = curChain->getChainSize();
-    //std::cerr << "---------------------------\nBlock " << curLength << " has been mined by " << _id << "\n";
+    if (getBeaten()) setBeaten(false);
+    else {
+        const int curLength = curChain->getChainSize();
+        //std::cout << "---------------------------\nBlock " << curLength << " has been mined by " << _id << "\n";
 
-    const std::string prevHash = (curLength > 1 ? splitHash(curChain->getBlockAt(curLength - 1).getHash()).getHash() : "");
-    //std::cerr << prevHash << " -> " << newHash << "\n";
-    curChain->createBlock(curLength, prevHash, newHash + ":" + std::to_string(lastNonce), {_id}); // add to local blockchain
-    transmitBlock(); // send to other miners
+        const std::string prevHash = (curLength > 1 ? splitHash(curChain->getBlockAt(curLength - 1).getHash()).getHash() : "-1_-1");
+        //std::cout << prevHash << " -> " << newHash << "\n";
+        curChain->createBlock(curLength, prevHash, newHash + ":" + std::to_string(lastNonce), {_id}); // add to local blockchain
+
+        //std::cerr << "nonce in mineNext is \t" << std::to_string(lastNonce) << "[" << newHash << "]\n";
+
+        transmitBlock(); // send to other miners
+    }
 }
 
 // Checks for solutions from other miners.
@@ -85,6 +96,9 @@ bool BitcoinMiner::readBlock() {
 
     // Stores position of message with longest corresponding blockchain
     int longestChainAt = -1;
+
+
+    //std::cerr << "instream:\t" << _inStream.size() << "\n";
 
     // Find longest blockchain
     for (int i = 0; i < _inStream.size(); ++i) {
@@ -100,6 +114,7 @@ bool BitcoinMiner::readBlock() {
     // peer will verify each block that it is missing and add them to its chain.
     if (longestChainAt != -1) {
         setLastNonce(0); // reset nonce
+        setBeaten(true);
         const Block topBlock = _inStream[longestChainAt].getMessage().block;
         const BitcoinMiner* topNeighbor;
         std::string lastHash = splitHash(curChain->getBlockAt(curChain->getChainSize() - 1).getHash()).getHash();
@@ -113,75 +128,93 @@ bool BitcoinMiner::readBlock() {
             }
         }
 
-        Blockchain* neighborChain = topNeighbor->getCurChain();
+        Blockchain* longestChain = topNeighbor->getCurChain();
         
-        int blocksBehind = neighborChain->getChainSize() - curChain->getChainSize();
+        int blocksBehind = longestChain->getChainSize() - curChain->getChainSize();
+
+        const int longestChainSize = longestChain->getChainSize();
 
         // Catch up and verify each block along the way
+
         while (blocksBehind > 0) {
-            int curPos = neighborChain->getChainSize() - blocksBehind;
+            int curPos = longestChainSize - blocksBehind;
             int prevPos = curPos - 1;
 
-            std::string neighborId = *(neighborChain->getBlockAt(curPos).getPublishers().begin());
+            std::string minerId = *(longestChain->getBlockAt(curPos).getPublishers().begin());
 
-            const splitHash curSplit = (curPos > 0 ? splitHash(neighborChain->getBlockAt(curPos).getHash()) : splitHash(-1, "genesisHash"));
-            const splitHash prevSplit = (prevPos > 0 ? splitHash(neighborChain->getBlockAt(prevPos).getHash()) : splitHash());
+            const splitHash curSplit = (curPos > 0 ? splitHash(longestChain->getBlockAt(curPos).getHash()) : splitHash(-1, "genesisHash"));
+            const splitHash prevSplit = (prevPos > 0 ? splitHash(longestChain->getBlockAt(prevPos).getHash()) : splitHash());
             
             std::string curHashCheck;
 
-            if (curPos == 0 || prevSplit.getHash() == "") curHashCheck = "genesisHash";
-            else picosha2::hash256_hex_string(prevSplit.getHash() + neighborId + std::to_string(curSplit.getNonce()), curHashCheck);
+            if (curPos == 0 || prevSplit.getHash() == "-1_-1") curHashCheck = "genesisHash";
+            else picosha2::hash256_hex_string(prevSplit.getHash() + minerId + std::to_string(curSplit.getNonce()), curHashCheck);
 
-            if ((curSplit.getHash() != curHashCheck) || (prevSplit.getHash() != splitHash(neighborChain->getBlockAt(curPos).getPreviousHash()).getHash())) {
-                std::cerr << _id << " is forked!\n";
-                std::cerr << (curSplit.getHash() != curHashCheck) << "\t" << (prevSplit.getHash() != splitHash(neighborChain->getBlockAt(curPos).getPreviousHash()).getHash()) << "\n";
-                std::cerr << curSplit.getHash() << "\t" << curHashCheck << "\n";
+            if ((curSplit.getHash() != curHashCheck) || (prevSplit.getHash() != longestChain->getBlockAt(curPos).getPreviousHash().substr(0, 64))) {
                 // This miner is on a fork
                 int forkPos = curChain->getChainSize() - 1;
                 while (forkPos != 0) {
-                    Block longer = neighborChain->getBlockAt(forkPos);
+                    Block longer = longestChain->getBlockAt(forkPos);
                     Block local = curChain->getBlockAt(forkPos);
                     // Search from the end of the blockchains for the shallowest matching block
-                    if ((splitHash(longer.getHash()).getHash() != splitHash(local.getHash()).getHash()) || (splitHash(longer.getPreviousHash()).getHash() != splitHash(local.getPreviousHash()).getHash()))
+                    if ((longer.getHash() != local.getHash()) || longer.getPreviousHash() != local.getPreviousHash())
                         --forkPos;
                     else break;
                 }
-
+                // std::cerr << _id << " is forked!\n";
                 // Copy longest blockchain up to the position where the two chains agreed
-                Blockchain* validated = new Blockchain(true);
-        
-                for (int i = 1; i <= forkPos; ++i) {
-                    Block copyBlock = neighborChain->getBlockAt(i);
-                    splitHash s = splitHash(copyBlock.getHash());
-                    validated->createBlock(copyBlock.getIndex(), splitHash(copyBlock.getPreviousHash()).getHash(), s.getHash() + ":" + std::to_string(s.getNonce()), {*copyBlock.getPublishers().begin()});
+                Blockchain* validated = new Blockchain(false);
+                for (int i = 0; i <= forkPos; ++i) {
+                    std::string curHash, prevHash, miner;
+                    if (i == 0) {
+                        curHash = "genesisHash";
+                        prevHash = "-1_-1";
+                        miner = "";
+                    }
+                    else {
+                        Block copyBlock(longestChain->getBlockAt(i));
+                        curHash = copyBlock.getHash();
+                        prevHash = copyBlock.getPreviousHash();
+                        miner = *(longestChain->getBlockAt(i).getPublishers().begin());
+                    }
+                    validated->createBlock(validated->getChainSize(), prevHash, curHash, {miner});
                 }
-                
                 // Set local chain to validated chain
                 setCurChain(*validated);
 
                 // Independently verify all the missed blocks
-                for (int verifyPos = forkPos + 1; curChain->getChainSize() != neighborChain->getChainSize(); ++verifyPos) {
+                for (int verifyPos = forkPos + 1; verifyPos != longestChainSize; ++verifyPos) {
                     int prevVerifyPos = verifyPos - 1;
-                    std::string verifyId = *(neighborChain->getBlockAt(verifyPos).getPublishers().begin());
+                    //std::cerr << "verifying at\t" << verifyPos << "\n";
+                    std::string verifyId = *(longestChain->getBlockAt(verifyPos).getPublishers().begin());
                     
-                    const splitHash verifySplit = (verifyPos > 0 ? splitHash(neighborChain->getBlockAt(verifyPos).getHash()) : splitHash(-1, "genesisHash"));
-                    const splitHash prevVerifySplit = (prevVerifyPos > 0 ? splitHash(neighborChain->getBlockAt(prevVerifyPos).getHash()) : splitHash());
+                    const splitHash verifySplit = (verifyPos > 0 ? splitHash(longestChain->getBlockAt(verifyPos).getHash()) : splitHash(-1, "genesisHash"));
+                    const std::string prevVerifyHash = (prevVerifyPos > 0 ? splitHash(longestChain->getBlockAt(verifyPos).getPreviousHash()).getHash() : "-1_-1");
 
                     std::string verifyHash;
                     
-                    if (verifyPos == 0 || prevVerifySplit.getHash() == "") curHashCheck = "genesisHash";
-                    else picosha2::hash256_hex_string(prevVerifySplit.getHash() + verifyId + std::to_string(verifySplit.getNonce()), verifyHash);
+                    if (verifyPos == 0 || prevVerifyHash == "-1_-1") verifyHash = "genesisHash";
+                    else picosha2::hash256_hex_string(prevVerifyHash + verifyId + std::to_string(verifySplit.getNonce()), verifyHash);
 
-                    if ((verifySplit.getHash() == verifyHash) && (prevVerifySplit.getHash() == splitHash(neighborChain->getBlockAt(verifyPos).getPreviousHash()).getHash())) {
-                        const int newIndex = curChain->getBlockAt(curChain->getChainSize() - 1).getIndex() + 1;
-                        curChain->createBlock(curChain->getChainSize(), prevVerifySplit.getHash(), verifySplit.getHash() + ":" + std::to_string(curSplit.getNonce()), {verifyId});
+                    if ((verifySplit.getHash() == verifyHash) && (prevVerifyHash == longestChain->getBlockAt(verifyPos).getPreviousHash().substr(0, 64))) {
+                        curChain->createBlock(curChain->getChainSize(), prevVerifyHash, verifySplit.getHash() + ":" + std::to_string(verifySplit.getNonce()), {verifyId});
+                        //std::cerr << "nonce in fork resolution is \t" << std::to_string(verifySplit.getNonce()) << "[" << verifySplit.getHash() << "]\n";
+                        --blocksBehind;
                     }
-                    
+                    else {
+                        std::cerr << "\t\tH(" << prevVerifyHash << ", " << verifyId << ", " << std::to_string(verifySplit.getNonce()) << ") =\t" << verifyHash << "\n";
+                        std::cerr << "\t\tCurs\t" << verifySplit.getHash() << "\t" << verifyHash << "\n";
+                        std::cerr << "\t\tPrevs\t" << prevVerifyHash << "\t" <<  longestChain->getBlockAt(verifyPos).getPreviousHash().substr(0, 64) << "\n";
+                        std::cerr << "FORK RESOLUTION FAILED - EXITING\n";
+                        exit(EXIT_FAILURE);
+                        break;
+                    }
                 }
                 break;
             }
             else {
-                curChain->createBlock(curChain->getChainSize(), prevSplit.getHash(), curSplit.getHash() + ":" + std::to_string(curSplit.getNonce()), {neighborId});
+                curChain->createBlock(curChain->getChainSize(), prevSplit.getHash(), curSplit.getHash() + ":" + std::to_string(curSplit.getNonce()), {minerId});
+                //std::cerr << "nonce in catchUp is \t" << std::to_string(curSplit.getNonce()) << "[" << curSplit.getHash() << "]\n";
                 --blocksBehind;
             }
         }
@@ -192,19 +225,18 @@ bool BitcoinMiner::readBlock() {
 
 // Send block to other miners
 void BitcoinMiner::transmitBlock() {
-    Blockchain* curChain = getCurChain();
-    int curChainSize = curChain->getChainSize();
-    Block nextBlock(curChain->getBlockAt(curChainSize - 1));
-    BitcoinMessage toSend(nextBlock, _id, curChainSize + 1);
+    const int blockLength = curChain->getChainSize();
+    Block newBlock = curChain->getBlockAt(blockLength - 1);
+
+    BitcoinMessage toSend(newBlock, _id, blockLength);
 
     for (auto it = _neighbors.begin(); it != _neighbors.end(); ++it) {
         std::string neighborId = it->first;
-        BitcoinMiner* neighborOb = static_cast<BitcoinMiner*>(it->second);
         Packet<BitcoinMessage> msgPacket("", neighborId, _id);
         msgPacket.setBody(toSend);
-        neighborOb->send(msgPacket);
         _outStream.push_back(msgPacket);
     }
+    transmit();
 }
 
 void BitcoinMiner::makeRequest() {

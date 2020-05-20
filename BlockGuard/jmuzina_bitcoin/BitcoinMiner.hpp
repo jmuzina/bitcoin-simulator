@@ -22,8 +22,12 @@ public:
     bool                            readBlock               ();
     void                            transmitBlock           ();
     void                            setCurChain             (const Blockchain& setFrom) { *curChain = setFrom; };
-    void                            setLastNonce            (long long nonce)                { lastNonce = nonce; };
-    long                            getLastNonce            () const                    { return lastNonce; };
+    void                            setBeaten               (const bool wasBeaten)      { beaten = wasBeaten; };
+    bool                            getBeaten               () const                    { return beaten; };
+    void                            setLastNonce            (long long nonce)           { lastNonce = nonce; };
+    long long                       getLastNonce            () const                    { return lastNonce; };
+    void                            setExperimentOver       (const bool set)            { experimentOver = set; };
+    bool                            getExperimentOver       () const                    { return experimentOver; };
     Blockchain*                     getCurChain             () const                    { return curChain; };
     std::string                     getId                   () const                    { return peerId; };
     std::string                     getSHA                  (long long) const;
@@ -32,6 +36,8 @@ private:
     std::string                     peerId;
     std::string                     foundHash;
     long long                       lastNonce;
+    bool                            experimentOver;
+    bool                            beaten;
 };
 
 #endif 

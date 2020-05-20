@@ -11,11 +11,23 @@ clean:
 	clear
 	clear
 
+make jmuzina_clean:
+	rm -f BlockGuard/*.gch
+	rm -f BlockGuard/*.tmp
+	rm -f BlockGuard/*.o
+	rm -f -r *.dSYM
+	rm -f BlockGuard_Test/*.gch
+	rm -f BlockGuard_Test/*.tmp
+	rm -f BlockGuard_Test/*.o
+	rm -f *.out
+	clear
+	clear
+
 build: preBuild
 	#clang++ -std=c++14 ./BlockGuard/*.cpp *.o -o ./BlockGuard.out -lssl -lcrypto
     #for MacOS and ssl installed via homebrew
     #clang++ -std=c++14 ./BlockGuard/*.cpp *.o -o ./BlockGuard.out -lm /usr/local/opt/openssl/lib/libssl.dylib /usr/local/opt/openssl/lib/libcrypto.dylib
-	clang++ -std=c++14 ./BlockGuard/*.cpp *.o -o ./BlockGuard.out
+	#clang++ -std=c++14 ./BlockGuard/*.cpp *.o -o ./BlockGuard.out
 
 preBuild:
 	clang++ -std=c++14 ./BlockGuard/Common/*.cpp -c
@@ -23,7 +35,11 @@ preBuild:
 	clang++ -std=c++14 ./BlockGuard/SBFT/*.cpp -c
 	clang++ -std=c++14 ./BlockGuard/bCoin/*.cpp -c
 	clang++ -std=c++14 ./BlockGuard/Experiments/*.cpp -c
+
+jmuzina_bcoin:
 	clang++ -std=c++14 ./BlockGuard/jmuzina_bitcoin/*.cpp -c
+	clang++ -std=c++14 ./BlockGuard/*.cpp *.o -o ./jmuzina_bcoin.out
+
 
 test: PBFT_Peer PBFTPeer_Sharded PBFTReferenceCommittee ExamplePeer
 	clang++ -std=c++14 ./BlockGuard_Test/*.cpp ./BlockGuard_Test/*.o --debug -o ./BlockGuard_Test.out
