@@ -186,7 +186,7 @@ void Example(std::ofstream& logFile) {
 	for (int delay = 2; delay <= 10; ++delay) {
 		float totalLatency = 0.0;
 		// Maximum allowed fork depth - forks may appear near end of chain, increasing in frequency and depth with delay.
-		const int maxForkPos = (BLOCKS * 0.88) - (5 * (delay - 2)); 
+		const int maxForkPos = (BLOCKS * 0.85) - (3 * (delay - 2)); 
 		std::cout << "---Running " << TRIALS << " trials with avg delay = " << delay << " and fork tolerance = " << maxForkPos << "---\n";
 		for (int trial = 1; trial <= TRIALS; ++trial) {
 			ByzantineNetwork<BitcoinMessage, BitcoinMiner> system;
@@ -249,6 +249,7 @@ void Example(std::ofstream& logFile) {
 			}
 			else {
 				std::cerr << "\n****************************************************\n\tERROR - Deep Forks found!\n";
+				std::cerr << "Deepest fork was at block " << deepestFork << " with delay = " << deepestForkDelay << "\n";
 				exit(EXIT_FAILURE);
 				//logFile << "\n****************************************************\n\tERROR - Deep Forks found!\n";
 			}
