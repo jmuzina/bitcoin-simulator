@@ -175,19 +175,17 @@ int roundsNeeded(ByzantineNetwork<BitcoinMessage, BitcoinMiner> &system) {
 }
 
 void Example(std::ofstream& logFile) {
-	const float TRIALS = 2.0;
+	const float TRIALS = 100.0;
 	const int MINERS = 200;
 	const float BLOCKS = 100;
 	const bool PRINT_INCONSISTENCIES = true;
 
-	int deepestFork = 100;
-	int deepestForkDelay = 0;
-
-	for (int delay = 2; delay <= 10; ++delay) {
+	for (int delay = 2; delay <= 25; ++delay) {
 		float totalLatency = 0.0;
 		// Maximum allowed fork depth - forks may appear near end of chain, increasing in frequency and depth with delay.
-		const int maxForkPos = (BLOCKS * 0.85) - (3 * (delay - 2)); 
-		std::cout << "---Running " << TRIALS << " trials with avg delay = " << delay << " and fork tolerance = " << maxForkPos << "---\n";
+		const int maxForkPos = (BLOCKS * 0.85) - (3 * (delay - 1)); 
+		int numForks = 0, trialForksSum = 0;
+		std::cout << "\n---------------Running " << TRIALS << " trials with avg delay = " << delay << "---------------\n";
 		for (int trial = 1; trial <= TRIALS; ++trial) {
 			ByzantineNetwork<BitcoinMessage, BitcoinMiner> system;
 			system.setLog(logFile);
@@ -196,6 +194,8 @@ void Example(std::ofstream& logFile) {
 			system.setAvgDelay(delay);
 			system.setMaxDelay(delay + 1);
 			system.initNetwork(MINERS);
+
+			int trialFork = BLOCKS;
 			
 			const int roundsToComplete = roundsNeeded(system);
 
@@ -224,11 +224,6 @@ void Example(std::ofstream& logFile) {
 						int i1 = b1.getIndex();
 						int i2 = b2.getIndex();
 
-						if (((h1 != h2 || p1 != p2 || i1 != i2)) && (i1 == i2) && (i1 < deepestFork)) {
-							deepestFork = i1;
-							deepestForkDelay = delay;
-						}
-
 						if ((h1 != h2 || p1 != p2 || i1 != i2) && (i1 == i2 && i1 < maxForkPos)) {
 							// There may be forks near the very end of the chain due to not having time to resolve
 							if (PRINT_INCONSISTENCIES) {
@@ -249,16 +244,14 @@ void Example(std::ofstream& logFile) {
 			}
 			else {
 				std::cerr << "\n****************************************************\n\tERROR - Deep Forks found!\n";
-				std::cerr << "Deepest fork was at block " << deepestFork << " with delay = " << deepestForkDelay << "\n";
-				exit(EXIT_FAILURE);
+				//exit(EXIT_FAILURE);
 				//logFile << "\n****************************************************\n\tERROR - Deep Forks found!\n";
 			}
 		}
 		float averageForTrial = totalLatency / TRIALS;
-		std::cout << "Average for delay = " << delay << ":\t" << averageForTrial << "\n";
+		std::cout << "\nAverage for delay = " << delay << ":\t" << averageForTrial << " blocks per round.\n";
 		logFile << delay << "\t" <<averageForTrial << "\n";
 	}
-	std::cerr << "Deepest fork was at block " << deepestFork << " with delay = " << deepestForkDelay << "\n";
 }
 
 void bitcoin(std::ofstream& out, int avgDelay) {
