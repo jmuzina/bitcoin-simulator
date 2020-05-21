@@ -61,9 +61,9 @@ void BitcoinMiner::preformComputation() {
     // continues executing until we've mined an arbitrary number of blocks
     if (curChain->getChainSize() != 100) {
         std::string hash = (curChain->getChainSize() > 1 ? getSHA(lastNonce) : "genesisHash"); // Miner's attempted Proof of Work solution
-        std::string challengeBits = hash.substr(0, 1); // Arbitrary first few bits of attempted solution
+        std::string challengeBits = hash.substr(0, 3); // Arbitrary first few bits of attempted solution
         // Valid PoW solution - send block to other miners
-        if ((challengeBits == "0" || hash == "genesisHash")) { 
+        if ((challengeBits == "000" || hash == "genesisHash")) { 
             mineNext(hash);
             setLastNonce(0);
         }
@@ -141,7 +141,10 @@ void BitcoinMiner::catchUpAndVerify(Blockchain* overtaker) {
                 }
                 else break;
             }
+            delete curChain;
+            curChain = new Blockchain(true);
             setCurChain(*validated);
+            delete validated;
 
             // Independently verify all the missed blocks
             for (int verifyPos = forkPos; verifyPos != OVERTAKER_LENGTH; ++verifyPos) {

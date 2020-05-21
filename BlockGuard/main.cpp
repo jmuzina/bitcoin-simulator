@@ -175,12 +175,13 @@ int roundsNeeded(ByzantineNetwork<BitcoinMessage, BitcoinMiner> &system) {
 }
 
 void Example(std::ofstream& logFile) {
-	const float TRIALS = 100.0;
-	const int MINERS = 200;
+	const float TRIALS = 20.0;
+	const int MINERS = 100;
 	const float BLOCKS = 100;
 	const bool PRINT_INCONSISTENCIES = true;
 
 	for (int delay = 2; delay <= 25; ++delay) {
+		float totalThroughput = 0.0;
 		float totalLatency = 0.0;
 		// Maximum allowed fork depth - forks may appear near end of chain, increasing in frequency and depth with delay.
 		const int maxForkPos = (BLOCKS * 0.85) - (3 * (delay - 1)); 
@@ -198,10 +199,11 @@ void Example(std::ofstream& logFile) {
 			int trialFork = BLOCKS;
 			
 			const int roundsToComplete = roundsNeeded(system);
+			totalLatency += roundsToComplete;
 
-			float latency = BLOCKS / roundsToComplete;
-			std::cout << "Trial " << trial << ":\t" << latency << " blocks per round.\n";
-			totalLatency += latency;
+			float throughput = BLOCKS / roundsToComplete;
+			std::cout << "Trial " << trial << ":\t" << throughput << " blocks per round. (" << roundsToComplete << " rounds)\n";
+			totalThroughput += throughput;
 
 			bool match = true;
 
@@ -248,9 +250,10 @@ void Example(std::ofstream& logFile) {
 				//logFile << "\n****************************************************\n\tERROR - Deep Forks found!\n";
 			}
 		}
-		float averageForTrial = totalLatency / TRIALS;
-		std::cout << "\nAverage for delay = " << delay << ":\t" << averageForTrial << " blocks per round.\n";
-		logFile << delay << "\t" <<averageForTrial << "\n";
+		float averageThroughput = totalThroughput / TRIALS;
+		float averageLatency = totalLatency / TRIALS;
+		std::cout << "\nAvg Delay:\t" << delay << "\nAverage throughput:\t"  << averageThroughput << " blocks per round.\nAverage latency:\t" << averageLatency << "rounds.\n";
+		logFile << delay << "\t" <<averageThroughput << "\t" << delay << "\t" << averageLatency << "\n";
 	}
 }
 
@@ -1126,7 +1129,7 @@ void markPBFT(const std::string& filePath) {
 				for (int roundstoRequest = initRoundstoRequest; roundstoRequest <= maxRoundstoRequest; ++roundstoRequest) {
 					for (int numByzantine = initByzantine; numByzantine <= maxByzantine; ++numByzantine) {
 
-						int totalLatency = 0;
+						int totalThroughput = 0;
 						long totalMessages = 0;
 						int numConfirmations = 0;
 						int totalRequests = 0;
@@ -1213,7 +1216,7 @@ void markPBFT(const std::string& filePath) {
 							for (auto itr = ledger.begin(); itr != ledger.end(); ++itr) {
 								out << itr->first << "\t\t" << itr->second << std::endl;
 
-								totalLatency += itr->second;
+								totalThroughput += itr->second;
 							}
 
 							if (ledger.empty()) {
